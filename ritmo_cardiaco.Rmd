@@ -225,9 +225,9 @@ $h_0$: Los residuos son independientes (no autocorrelacion).
 
 Como p \> 0.05 no se rechaza hipotesis nula no existe autocorrelacion
 
-El test de homocedasticidad es importante que sean menor a 0.05 ya que es importante la homocedasticidad condicional.
+En cuento al test de homocedasticiadad sus hipotesis son:
 
-$h_0$: No existen efectos ARCH hasta el rezago (los residuos son ruido blanco, varianza constante/homocedasticidad). dado que p \> 0.05 existe heterocedastocadad (varianza no constante).
+$h_0$: No existen efectos ARCH hasta el rezago (los residuos son ruido blanco, varianza constante/homocedasticidad). dado que p \< 0.05 existe heterocedastocadad (varianza no constante).
 
 En en grafico de normalidad se observan asimetrias y el test Jarque-Bera rechaza la normaliad p \< 0.05 por lo que los intervalos estan sesgados.
 

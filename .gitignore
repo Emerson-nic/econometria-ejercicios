@@ -1,10 +1,10 @@
-# RStudio y Sesión
+#archivos de r
 .Rproj.user/
 .Rhistory
 .RData
 *.Rproj
 
-# Código y Documentos (UNI)
+#documentos y fomatos 
 *.[Rr]
 *.[Pp][Dd][Ff]
 *.[Hh][Tt][Mm][Ll]
