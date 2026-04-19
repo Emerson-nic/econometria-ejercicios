@@ -1,0 +1,216 @@
+---
+title: "Trabajo 1 Econometria Avanzada UNI"
+author: "Emer, Elias, Fernando & Kath"
+date: "2026-04-11"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Ejercicio 1
+
+El ejercicio consta de obtener una base de datos, interpretarlos, graficos y test de estacionariedad de manera complementaria se hara un modelo ARIMA e interpretacion de ella.
+
+```{r dataset y librerias, include=FALSE}
+options(repos = c(CRAN = "https://cloud.r-project.org"))
+
+#instalar pacman si no esta instalado
+#install.packages(pacman)
+library(pacman)
+
+p_load(dplyr, lubridate, forecast, urca, ggplot2, scales,
+       tseries, FinTS, tinytex)
+
+dataset <- read.csv("20260411_6173302506_MiFitness_hlth_center_fitness_data.csv", 
+                    stringsAsFactors = FALSE)
+
+
+head(dataset)
+
+```
+
+### Datos
+
+La base de datos propia se obtuvo de Mi Finess con un modelo xiaomi mi smart ban 10, con un periodo de tiempo de 09 a 10 de marzo 2026 con intervalos de 30 min.
+
+nota: Existen periodos de timpo no registrados a causa de cargar el reloj.
+
+```{r limpieza, echo=FALSE}
+dataset_limpio <- dataset %>%
+  #filtramos la fila de ritmo cardiaco
+  filter(Key == "heart_rate") %>%
+  
+  mutate(
+    #se extre el nuemrode los latidos (bpm) usando una pequeña formula de texto
+    bpm = as.numeric(sub(".*\"bpm\":([0-9]+).*", "\\1", Value)),
+    fecha_hora = as_datetime(Time)
+  ) %>%
+  select(fecha_hora, bpm) %>%
+  #orden cronologico de la serie de tiempo
+  arrange(fecha_hora)
+head(dataset_limpio)
+
+cat("Numero de observaciones")
+nrow(dataset_limpio)
+cat("Valor minimo")
+min(dataset_limpio$bpm, na.rm = TRUE)
+cat("Valor maximo")
+max(dataset_limpio$bpm, na.rm = TRUE)
+```
+
+## Grafico Original
+
+```{r grafico original, echo=FALSE}
+serie <- ggplot(dataset_limpio, aes(x = fecha_hora, y = bpm)) +
+  geom_area(fill = "#ff9999", alpha = 0.2) +
+  geom_line(color = "#cc0000", linewidth = 1) +
+  coord_cartesian(ylim = c(40, NA)) +
+  scale_x_datetime(date_labels = "%H:%M", date_breaks = "2 hours") +
+  labs(
+    title = "Ritmo Cardiaco Emer",
+    subtitle = "Rigistro Historico BPM",
+    x = "Hora del registro",
+    y = "Latidos por Minuto (BPM)",
+    caption = "Fuente: Datos extraídos de Mi Fitness \nFecha contenida del 09 a 10 de marzo 2026"
+  ) + 
+  theme_minimal(base_size = 14) +
+  theme(
+    plot.title = element_text(face = "bold", color = "#333333", hjust = 0.5),
+    plot.subtitle = element_text(color = "#666666", hjust = 0.5, margin = margin(b = 15)),
+    axis.title = element_text(face = "bold", color = "#555555"),
+  )
+
+print(serie)
+```
+
+Este grafico es dificil ver con claridad si es estacionario o no ya que las frecuencias cardiacas caen en datos discretos que en jovenes de 20 años el rango es de 60 a 100 latidos por minuto, pero los ritmos cardiacos son tienden a ser muchos mas bajos cuando se duerme. En el dataset el rango minimo es 49 y maximo 124, se debe aplicar el test de estacionariedad.
+
+### Tendencias
+
+#### PACF
+
+```{r pacf, echo=FALSE}
+pacf(dataset_limpio,
+     main = 'Función de autocorrelación parcial muestral',
+     xlab = 'Rezago',
+     ylab = 'PACF',
+     lwd = 4)
+grid()
+
+```
+
+miremos
+
+#### ACF
+
+```{r acf, echo=FALSE}
+acf(dataset_limpio,
+    main = 'Función de autocorrelación muestral',
+    xlab = 'Rezago',
+    ylab = 'ACF',
+    lwd = 4)
+grid()
+
+```
+
+### Test Dicker-Fuller
+
+El test indica si exististe raiz unitario es decir si es estacionario donde
+
+$h_0$:asume que la serie no es estacionaria (tiene raíz unitaria). $h_1$: asume que la serie es estacionaria (no tiene raíz unitaria).
+
+```{r test dicker fuller, echo=FALSE}
+#test con autocorrelacion
+rezagos <- ur.df(dataset_limpio$bpm, 
+                 type = "drift", 
+                 lags = 6, 
+                 selectlags = "AIC")
+summary(rezagos)
+
+#p-value de serie original
+prueba_pvalue <- adf.test(dataset_limpio$bpm, 
+                          alternative = "stationary")
+print(prueba_pvalue)
+
+#p-value diff 1
+prueba_pvalue1 <- adf.test(dataset_limpio$bpm,
+                           alternative = "stationary",
+                           k=1)
+print(prueba_pvalue1)
+```
+
+La serie original es no estacionaria tiene tendencia, aunque la serie es estacionaria en I(1).
+
+### Tendencia diff
+
+#### PACF diff
+
+```{r pacf diff, echo=FALSE}
+dataset_diff <- diff(dataset_limpio$bpm, lag = 1)
+head(dataset_diff)
+
+```
+
+```{r modelo_arima, echo=FALSE}
+#modelo arima
+modelo_arima <- auto.arima(dataset_limpio$bpm, 
+                           d = 1, 
+                           stepwise = FALSE, #automatizacion del mejor modelo        
+                           approximation = FALSE) 
+
+#resumen del modelo elegido
+summary(modelo_arima)
+```
+
+El modelo ARIMA escogido es (1,1,1) de forma que (p, d, q) donde p es AR (autoregresivo) solo 1 rezago atras, d es diferenciacion (I) el modelo resto 1 periodo atras y q es la media movil (MA) los terminos de error se basan en el periodo anterior.
+
+Dado que la serie es $I(1)$, el coeficiente AR1 indica que el cambio en el ritmo cardiaco anterio tiene influencia, es decir un 26% del incremento (o disminucion) observado en el periodo anterior se traslada al periodo actual. Si el corazón se aceleró 10 latidos hace media hora, el modelo espera que esa influencia aporte un aumento de \~2.6 latidos en este periodo.
+
+El coeficiente MA1 actua como un amortiguador. Al ser negativo y alto (\~74%), indica que el modelo revierte rapidamente los choques inesperados.
+
+El RMSE es el error cuadrado medio el modelo se equivoca en promedio por unos 4.8 latidos. El MAE es el Error Absoluto Medio, la medicion es mas estricta la desviación absoluta normal es de solo 2.8 latidos. El MAPE Es el error expresado en porcentaje con un error del 4.13% es decir se tiene una precision del 95.87% con un ACF de $-1.9 \times 10^{-3}$, valor casi 0 es decir la autocorrelacion es inexistente.
+
+El MASE significa Error Absoluto Medio Escalado indica si el modelo flojo o no. Si el MASE \< 1 el modelo es mejor que flojo MASE \~0.93.
+
+```{r residuos, echo=FALSE}
+#residuos
+
+#test de autocorelacion
+checkresiduals(modelo_arima)
+
+#test de normalidad
+jarque.bera.test(modelo_arima$residuals)
+
+#test de homocedasticidad
+ArchTest(modelo_arima$residuals, lags = 1)
+
+#predicir 6 horas en intervalos de 30 min
+pronostico <- forecast(modelo_arima, h = 12)
+
+#plot
+autoplot(pronostico) +
+  labs(
+    title = "Pronostico del Ritmo Cardiaco (ARIMA 1,1,1)",
+    subtitle = "Prediccion para los siguientes 12 periodos",
+    x = "Tiempo",
+    y = "BPM"
+  )
+```
+
+El Ljung-Box se usa para examinar los residuos (lo que el modelo no pudo explicar), confirmar que esos residuos sean ruido blanco.
+
+$h_0$: Los residuos son independientes (no autocorrelacion).
+
+Como p \> 0.05 no se rechaza hipotesis nula no existe autocorrelacion
+
+El test de homocedasticidad es importante que sean menor a 0.05 ya que es importante la homocedasticidad condicional.
+
+$h_0$: No existen efectos ARCH hasta el rezago (los residuos son ruido blanco, varianza constante/homocedasticidad). dado que p \> 0.05 existe heterocedastocadad (varianza no constante).
+
+En en grafico de normalidad se observan asimetrias y el test Jarque-Bera rechaza la normaliad p \< 0.05 por lo que los intervalos estan sesgados.
+
+Sobre la primera grafica de los residuos hay zonas donde las lienas son cortitos (poca actividad) y zonas donde de repente hay disparos muy altos. Esto es la evidencia que el corazón hizo algo brusco que el modelo no pudo prever.
+
+Aunque si bien el modelo podria tener un nivel predictivo aceptable no cumple con los criterios de normalidad y homocedasticidad, ademas agregandole que algun tipo de suavizado pierda mucha informacion importante como el ritmo cardiaco lo mejor es hacer otro modelo como ARIMA-GARCH.
