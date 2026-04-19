@@ -21,7 +21,7 @@ options(repos = c(CRAN = "https://cloud.r-project.org"))
 library(pacman)
 
 p_load(dplyr, lubridate, forecast, urca, ggplot2, scales,
-       tseries, FinTS, tinytex)
+       tseries, FinTS, tinytex, rugarch)
 
 dataset <- read.csv("20260411_6173302506_MiFitness_hlth_center_fitness_data.csv", 
                     stringsAsFactors = FALSE)
@@ -66,8 +66,8 @@ max(dataset_limpio$bpm, na.rm = TRUE)
 serie <- ggplot(dataset_limpio, aes(x = fecha_hora, y = bpm)) +
   geom_area(fill = "#ff9999", alpha = 0.2) +
   geom_line(color = "#cc0000", linewidth = 1) +
-  coord_cartesian(ylim = c(40, NA)) +
-  scale_x_datetime(date_labels = "%H:%M", date_breaks = "2 hours") +
+  coord_cartesian(ylim = c(50, NA)) +
+  scale_x_datetime(date_labels = "%H:%M", date_breaks = "4 hours") +
   labs(
     title = "Ritmo Cardiaco Emer",
     subtitle = "Rigistro Historico BPM",
@@ -87,33 +87,33 @@ print(serie)
 
 Este grafico es dificil ver con claridad si es estacionario o no ya que las frecuencias cardiacas caen en datos discretos que en jovenes de 20 años el rango es de 60 a 100 latidos por minuto, pero los ritmos cardiacos son tienden a ser muchos mas bajos cuando se duerme. En el dataset el rango minimo es 49 y maximo 124, se debe aplicar el test de estacionariedad.
 
-### Tendencias
+### Autocorrelacion
 
 #### PACF
 
 ```{r pacf, echo=FALSE}
-pacf(dataset_limpio,
-     main = 'Función de autocorrelación parcial muestral',
+pacf(dataset_limpio$bpm,
+     main = 'PACF',
      xlab = 'Rezago',
      ylab = 'PACF',
      lwd = 4)
-grid()
 
 ```
 
-miremos
+El comportamiento del PACF presenta un corte abrupto en memoria, donde en el rezago 4 deja de ser significativo, siguiere que el orden Ar (autorregresivo) es cercano a 1.
 
 #### ACF
 
 ```{r acf, echo=FALSE}
-acf(dataset_limpio,
-    main = 'Función de autocorrelación muestral',
+acf(dataset_limpio$bpm,
+    main = 'ACF',
     xlab = 'Rezago',
     ylab = 'ACF',
     lwd = 4)
-grid()
 
 ```
+
+El grafico ACF muestra un decaimiento lento y altamente significativos al 95% de significancia a traves del tiempo lo que existen una memoria larga fuerte en la serie analizada, siguiere que la serie no es estacionaria (fuerte presencia de reiz un
 
 ### Test Dicker-Fuller
 
@@ -143,15 +143,35 @@ print(prueba_pvalue1)
 
 La serie original es no estacionaria tiene tendencia, aunque la serie es estacionaria en I(1).
 
-### Tendencia diff
+### Autocorrelacion diff
 
 #### PACF diff
 
-```{r pacf diff, echo=FALSE}
+```{r pacf_diff, echo=FALSE}
 dataset_diff <- diff(dataset_limpio$bpm, lag = 1)
-head(dataset_diff)
+
+#pacf
+pacf(dataset_diff,
+     main = 'PACF (Serie Diferenciada)',
+     xlab = 'Rezago',
+     ylab = 'PACF',
+     lwd = 4)
 
 ```
+
+El grafico no presenta un corte abrupto como el PACF anterior, en este no deja de ser significativo hasta el rezago 7. Este comportamiento indica que la memoria directa de los choques en el ritmo cardiaco se distribuye y amortigua a lo largo de múltiples periodos cortos, en lugar de cortarse de tajo.
+
+####ACF diff
+```{r acf_diff, echo=FALSE}
+
+acf(dataset_diff,
+    main = 'ACF (Serie Diferenciada)',
+    xlab = 'Rezago',
+    ylab = "ACF",
+    lwd = 4)
+```
+
+Al aplicar la primera diferencia, la gran mayoria de los coeficientes caen rápidamente dentro de las bandas de confianza del 95%. No se observa memoria de largo plazo (no hay presencia de raiz unitaria). En el 2 rezago se captura la toda la autocorrelacion serial segun el ACF. Como el corte es abrupto en el rezago dos eso quiere decir que el ritmo cardiaco esta dominado por correciones de error (MA). Los autorregresores no estan dominado la serie de tiempo.
 
 ```{r modelo_arima, echo=FALSE}
 #modelo arima
