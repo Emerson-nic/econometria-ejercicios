@@ -1,5 +1,5 @@
 ---
-title: "Trabajo 1 Econometria Avanzada UNI"
+title: "Trabajo 2 Econometria Avanzada UNI"
 author: "Emer, Elias, Fernando & Kath"
 date: "2026-04-11"
 output: html_document
@@ -20,8 +20,8 @@ options(repos = c(CRAN = "https://cloud.r-project.org"))
 #install.packages(pacman)
 library(pacman)
 
-p_load(dplyr, lubridate, forecast, urca, ggplot2, scales,
-       tseries, FinTS, tinytex, rugarch)
+p_load(dplyr, lubridate, forecast, urca, ggplot2, scales,tseries, FinTS, tinytex,
+       rugarch, xts, fpp2)
 
 dataset <- read.csv("20260411_6173302506_MiFitness_hlth_center_fitness_data.csv", 
                     stringsAsFactors = FALSE)
@@ -148,10 +148,15 @@ La serie original es no estacionaria tiene tendencia, aunque la serie es estacio
 #### PACF diff
 
 ```{r pacf_diff, echo=FALSE}
-dataset_diff <- diff(dataset_limpio$bpm, lag = 1)
+dataset_diff <- dataset_limpio %>%
+  mutate(
+    bpm_diff = bpm - lag(bpm, n = 1) 
+  ) %>%
+  filter(!is.na(bpm_diff)) %>%
+  select(fecha_hora, bpm_diff)
 
 #pacf
-pacf(dataset_diff,
+pacf(dataset_diff$bpm_diff,
      main = 'PACF (Serie Diferenciada)',
      xlab = 'Rezago',
      ylab = 'PACF',
@@ -164,7 +169,7 @@ El grafico no presenta un corte abrupto como el PACF anterior, en este no deja d
 ####ACF diff
 ```{r acf_diff, echo=FALSE}
 
-acf(dataset_diff,
+acf(dataset_diff$bpm_diff,
     main = 'ACF (Serie Diferenciada)',
     xlab = 'Rezago',
     ylab = "ACF",
@@ -182,6 +187,15 @@ modelo_arima <- auto.arima(dataset_limpio$bpm,
 
 #resumen del modelo elegido
 summary(modelo_arima)
+
+autoplot(modelo_arima) +
+  labs(
+    title = "Circulo Unitario de Raices Invertidas",
+    subtitle = "Prueba de Estabilidad e Invertibilidad - ARIMA(1,1,1)",
+    x = "Parte Real",
+    y = "Parte Imaginaria"
+  ) +
+  theme_minimal()
 ```
 
 El modelo ARIMA escogido es (1,1,1) de forma que (p, d, q) donde p es AR (autoregresivo) solo 1 rezago atras, d es diferenciacion (I) el modelo resto 1 periodo atras y q es la media movil (MA) los terminos de error se basan en el periodo anterior.
@@ -190,9 +204,13 @@ Dado que la serie es $I(1)$, el coeficiente AR1 indica que el cambio en el ritmo
 
 El coeficiente MA1 actua como un amortiguador. Al ser negativo y alto (\~74%), indica que el modelo revierte rapidamente los choques inesperados.
 
+
 El RMSE es el error cuadrado medio el modelo se equivoca en promedio por unos 4.8 latidos. El MAE es el Error Absoluto Medio, la medicion es mas estricta la desviación absoluta normal es de solo 2.8 latidos. El MAPE Es el error expresado en porcentaje con un error del 4.13% es decir se tiene una precision del 95.87% con un ACF de $-1.9 \times 10^{-3}$, valor casi 0 es decir la autocorrelacion es inexistente.
 
 El MASE significa Error Absoluto Medio Escalado indica si el modelo flojo o no. Si el MASE \< 1 el modelo es mejor que flojo MASE \~0.93.
+
+Sobre las raices, estan dentro del circulo unitario, raices < 1, el modelo no explota.
+
 
 ```{r residuos, echo=FALSE}
 #residuos
@@ -239,3 +257,138 @@ Sobre la primera grafica de los residuos hay zonas donde las lienas son cortitos
 Si bien el modelo ARIMA(1,1,1) logra capturar la dinamica de la tendencia central y presenta un poder predictivo aceptable, el analisis de sus residuos revela violaciones a los supuestos fundamentales. Específicamente, las pruebas de  normalidad (Test de Jarque-Bera) como la homocedasticidad (Test ARCH-LM). Intentar mejorar los residuos mediante tecnicas de suavizado podria eliminar la informacion micro-estructural y las variaciones naturales de un registro biometrico.
 
 El ritmo cardatico de Emer presenta clusteres de volatilidad (peroodos de alta alteracion seguidos de periodos de calma), lo que se traduce en una varianza no constante a lo largo del tiempo. Mientras que la constante de la media movil ($MA$) del ARIMA logra modelar la rápida reversión a la media tras un choque inesperado, el modelo es incapaz de modelar inestabilidad de kos choques. Al incorporar componentes GARCH para modelar esta heterocedasticidad condicional permite que el modelo no solo pronostique el nivel de los latidos, sino que tambien se calcule la incertidumbre y la persistencia de la volatilidad cardiaca.
+
+
+
+### Modelo ARIMA-GARCH
+```{r modelo_arima_garch, echo=FALSE}
+
+#arreglar la fecha
+dataset_xts <- xts(dataset_diff$bpm_diff, order.by = dataset_diff$fecha_hora)
+colnames(dataset_xts) <- "bpm_diff"
+
+#componentes del ARMA - GARCH como ya esta diferenciado es ARIMA - GARCH
+especificacion_garch <- ugarchspec(
+  #garch
+  variance.model = list(model = "sGARCH", garchOrder = c(1, 1)),
+  
+  #arma
+  mean.model = list(armaOrder = c(1, 1), include.mean = TRUE),
+  
+  # distribucion t 
+  distribution.model = "std" 
+)
+
+#modelo
+modelo_garch <- ugarchfit(
+  spec = especificacion_garch, 
+  data = dataset_xts$bpm_diff, 
+  solver = 'hybrid'
+)
+
+print(modelo_garch@fit$matcoef)
+
+#forestcast 
+pronostico_garch <- ugarchforecast(modelo_garch, n.ahead = 12)
+
+# graficos
+par(mfrow = c(2, 1), mar = c(3, 4, 2, 1))
+
+#bpm media
+plot(pronostico_garch, which = 1, 
+     main = "Pronostico ARIMA(1,1,1) - Cambios en BPM", 
+     ylab = "Variacion BPM")
+
+#varianza sigma
+plot(pronostico_garch, which = 3, 
+     main = "Pronostico GARCH(1,1) - Volatilidad Esperada (Sigma)", 
+     ylab = "Volatilidad")
+
+par(mfrow = c(1, 1)) #funcion para volver al plot normal
+```
+
+ARIMA-GARCH
+
+```{r residuos_ARIMA-GARCH, echo=FALSE}
+#residuos
+residuos_est <- as.numeric(residuals(modelo_garch, standardize = TRUE))
+
+#test de normalidad
+print(jarque.bera.test(residuos_est))
+
+#test de homocedasticidad
+print(ArchTest(residuos_est, lags = 1))
+
+#residualos
+plot(modelo_garch, which = 8) 
+plot(modelo_garch, which = 9)
+cat("ACF para la media")
+plot(modelo_garch, which = 10) # ACF de residuos (prueba para la media)
+cat('ACF varianza')
+plot(modelo_garch, which = 11) # ACF de residuos al Cuadrado (prueba para varianza)
+
+```
+
+```{r raices del polinomio, echo=FALSE}
+coeficientes <- coef(modelo_garch)
+ar_coef <- coeficientes["ar1"]
+ma_coef <- coeficientes["ma1"]
+
+raiz_ar_invertida <- abs(ar_coef)
+raiz_ma_invertida <- abs(ma_coef)
+
+#dataframe
+raices_df <- data.frame(
+  Tipo = c("AR", "MA"),
+  Raiz_Invertida = c(raiz_ar_invertida, raiz_ma_invertida),
+  Imaginaria = c(0, 0)
+)
+
+#grafico
+#no se puede usar autoplot porque no hay una funcion programada para eso asi que
+
+ggplot(raices_df, aes(x = Raiz_Invertida, y = Imaginaria, color = Tipo, shape = Tipo)) +
+  annotate("path",
+           x = cos(seq(0, 2*pi, length.out=100)),
+           y = sin(seq(0, 2*pi, length.out=100)),
+           color = "gray50", linetype = "dashed") +
+  geom_hline(yintercept = 0, color = "gray80") +
+  geom_vline(xintercept = 0, color = "gray80") +
+  geom_point(size = 4) +
+  scale_color_manual(values = c("AR" = "#cc0000", "MA" = "#0000cc")) +
+  coord_fixed(xlim = c(-1.1, 1.1), ylim = c(-1.1, 1.1)) +
+  labs(
+    title = "Circulo Unitario de raices",
+    x = "Parte Real",
+    y = "Parte Imaginaria"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+```
+
+tabla de pronostico
+
+```{r tabla_pronostico, echo=FALSE}
+# fitted() extrae la media (los cambios en BPM)
+cambios_pronosticados <- as.numeric(fitted(pronostico_garch))
+
+# sigma() extrae la desviacion estandar
+volatilidad_pronosticada <- as.numeric(sigma(pronostico_garch))
+
+#revertir la primera diferencia
+ultimo_bpm_real <- tail(dataset_limpio$bpm, 1)
+
+#bpm futuro
+bpm_absolutos_proyectados <- ultimo_bpm_real + cumsum(cambios_pronosticados)
+
+#tabla
+tabla_resultados <- data.frame(
+  Periodo_Futuro = 1:24,
+  Variacion_Media_BPM = round(cambios_pronosticados, 3),
+  BPM_Proyectado = round(bpm_absolutos_proyectados, 1),
+  Volatilidad_Sigma = round(volatilidad_pronosticada, 3)
+)
+
+print(tabla_resultados)
+```
+
