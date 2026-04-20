@@ -233,4 +233,9 @@ En en grafico de normalidad se observan asimetrias y el test Jarque-Bera rechaza
 
 Sobre la primera grafica de los residuos hay zonas donde las lienas son cortitos (poca actividad) y zonas donde de repente hay disparos muy altos. Esto es la evidencia que el corazón hizo algo brusco que el modelo no pudo prever.
 
-Aunque si bien el modelo podria tener un nivel predictivo aceptable no cumple con los criterios de normalidad y homocedasticidad, ademas agregandole que algun tipo de suavizado pierda mucha informacion importante como el ritmo cardiaco lo mejor es hacer otro modelo como ARIMA-GARCH.
+
+### Porque un modelo GARCH y no solo ARIMA
+
+Si bien el modelo ARIMA(1,1,1) logra capturar la dinamica de la tendencia central y presenta un poder predictivo aceptable, el analisis de sus residuos revela violaciones a los supuestos fundamentales. Específicamente, las pruebas de  normalidad (Test de Jarque-Bera) como la homocedasticidad (Test ARCH-LM). Intentar mejorar los residuos mediante tecnicas de suavizado podria eliminar la informacion micro-estructural y las variaciones naturales de un registro biometrico.
+
+El ritmo cardatico de Emer presenta clusteres de volatilidad (peroodos de alta alteracion seguidos de periodos de calma), lo que se traduce en una varianza no constante a lo largo del tiempo. Mientras que la constante de la media movil ($MA$) del ARIMA logra modelar la rápida reversión a la media tras un choque inesperado, el modelo es incapaz de modelar inestabilidad de kos choques. Al incorporar componentes GARCH para modelar esta heterocedasticidad condicional permite que el modelo no solo pronostique el nivel de los latidos, sino que tambien se calcule la incertidumbre y la persistencia de la volatilidad cardiaca.
