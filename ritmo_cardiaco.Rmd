@@ -167,6 +167,7 @@ pacf(dataset_diff$bpm_diff,
 El grafico no presenta un corte abrupto como el PACF anterior, en este no deja de ser significativo hasta el rezago 7. Este comportamiento indica que la memoria directa de los choques en el ritmo cardiaco se distribuye y amortigua a lo largo de múltiples periodos cortos, en lugar de cortarse de tajo.
 
 ####ACF diff
+
 ```{r acf_diff, echo=FALSE}
 
 acf(dataset_diff$bpm_diff,
@@ -204,13 +205,11 @@ Dado que la serie es $I(1)$, el coeficiente AR1 indica que el cambio en el ritmo
 
 El coeficiente MA1 actua como un amortiguador. Al ser negativo y alto (\~74%), indica que el modelo revierte rapidamente los choques inesperados.
 
-
 El RMSE es el error cuadrado medio el modelo se equivoca en promedio por unos 4.8 latidos. El MAE es el Error Absoluto Medio, la medicion es mas estricta la desviación absoluta normal es de solo 2.8 latidos. El MAPE Es el error expresado en porcentaje con un error del 4.13% es decir se tiene una precision del 95.87% con un ACF de $-1.9 \times 10^{-3}$, valor casi 0 es decir la autocorrelacion es inexistente.
 
 El MASE significa Error Absoluto Medio Escalado indica si el modelo flojo o no. Si el MASE \< 1 el modelo es mejor que flojo MASE \~0.93.
 
-Sobre las raices, estan dentro del circulo unitario, raices < 1, el modelo no explota.
-
+Sobre las raices, estan dentro del circulo unitario, raices \< 1, el modelo no explota.
 
 ```{r residuos, echo=FALSE}
 #residuos
@@ -251,16 +250,52 @@ En en grafico de normalidad se observan asimetrias y el test Jarque-Bera rechaza
 
 Sobre la primera grafica de los residuos hay zonas donde las lienas son cortitos (poca actividad) y zonas donde de repente hay disparos muy altos. Esto es la evidencia que el corazón hizo algo brusco que el modelo no pudo prever.
 
-
 ### Porque un modelo GARCH y no solo ARIMA
 
-Si bien el modelo ARIMA(1,1,1) logra capturar la dinamica de la tendencia central y presenta un poder predictivo aceptable, el analisis de sus residuos revela violaciones a los supuestos fundamentales. Específicamente, las pruebas de  normalidad (Test de Jarque-Bera) como la homocedasticidad (Test ARCH-LM). Intentar mejorar los residuos mediante tecnicas de suavizado podria eliminar la informacion micro-estructural y las variaciones naturales de un registro biometrico.
+Si bien el modelo ARIMA(1,1,1) logra capturar la dinamica de la tendencia central y presenta un poder predictivo aceptable, el analisis de sus residuos revela violaciones a los supuestos fundamentales. Específicamente, las pruebas de normalidad (Test de Jarque-Bera) como la homocedasticidad (Test ARCH-LM). Intentar mejorar los residuos mediante tecnicas de suavizado podria eliminar la informacion micro-estructural y las variaciones naturales de un registro biometrico.
 
 El ritmo cardatico de Emer presenta clusteres de volatilidad (peroodos de alta alteracion seguidos de periodos de calma), lo que se traduce en una varianza no constante a lo largo del tiempo. Mientras que la constante de la media movil ($MA$) del ARIMA logra modelar la rápida reversión a la media tras un choque inesperado, el modelo es incapaz de modelar inestabilidad de kos choques. Al incorporar componentes GARCH para modelar esta heterocedasticidad condicional permite que el modelo no solo pronostique el nivel de los latidos, sino que tambien se calcule la incertidumbre y la persistencia de la volatilidad cardiaca.
 
+### Formulacion matematica del ARIMA-GARCH
 
+Para estimar el ARIMA-GARCH se uso la libreria rugarch, donde el script es pensado originalmente para un ARMA-GARCH, pero como los datos ya estan diferenciados tiene el componente (I) indirectamente, por lo que matematicamente el modelo es:
+
+$$
+y_{t}=\mu + \phi_{1}y_{t-1}+\epsilon_{t}+\theta_{1}y_{t-1}
+$$
+
+Que es el ARMA donde:
+
+-   $y_t$: Es la serie observada (diferencia de BPM).
+
+-   $\mu$: Es el intercepto o valor promedio de la serie (`mu`).
+
+-   $\phi_1 y_{t-1}$: El componente autorregresivo (AR). Es la parte de tus latidos que "recuerda" el periodo anterior (tu `ar1`).
+
+-   $\theta_1 \epsilon_{t-1}$: El componente de media movil (ma). Representa como los choques aleatorios del pasado afectan el presente (`ma1`).
+
+-   $\epsilon_t$: Es el residuo en el tiempo $t$.
+
+El modelo matematico GARCH es:
+
+$$
+\sigma_t^2 = \omega + \alpha_1 \epsilon_{t-1}^2 + \beta_1 \sigma_{t-1}^2
+$$
+
+En la cual:
+
+-   $\sigma_t^2$: Es la varianza condicional (la volatilidad al cuadrado en el tiempo $t$).
+
+-   $\omega$: Es la constante de la varianza (`omega`), que garantiza que la volatilidad siempre sea positiva.
+
+-   $\alpha_1 \epsilon_{t-1}^2$: El efecto arch. Mide como los choques o noticias del periodo anterior (latidos bruscos) incrementan la volatilidad actual.
+
+-   $\beta_1 \sigma_{t-1}^2$: El efecto garch. Mide la persistencia de la volatilidad. Si ayer hubo mucha agitacion, esta parte hace que hoy tambien la haya.
+
+El componente ARMA modela la media condicional de los BPM (su tendencia central), mientras que el proceso GARCH captura la varianza condicional (volatilidad). Esta funcion permite generar intervalos de confianza en tiempo real a la incertidumbre del sistema, lo que robustece la capacidad predictiva frente a choque estrucutales del corazon de Emerson. El conector de ambos modelos estan en el residuo ($\epsilon_t$), donde el residuo se calcula como $\epsilon_t = \sigma_t z_t$ que es el resultado de multiplicar la volatilidad calculada por el GARCH ($\sigma_t$) por el ruido blanco ($z_t$).
 
 ### Modelo ARIMA-GARCH
+
 ```{r modelo_arima_garch, echo=FALSE}
 
 #arreglar la fecha
@@ -306,8 +341,6 @@ plot(pronostico_garch, which = 3,
 
 par(mfrow = c(1, 1)) #funcion para volver al plot normal
 ```
-
-ARIMA-GARCH
 
 ```{r residuos_ARIMA-GARCH, echo=FALSE}
 #residuos
@@ -391,4 +424,3 @@ tabla_resultados <- data.frame(
 
 print(tabla_resultados)
 ```
-
