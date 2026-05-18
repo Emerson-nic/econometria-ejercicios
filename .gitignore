@@ -1,0 +1,13 @@
+#archivos de la clase
+*Practica_1_GARCH.R
+
+#archivos de r
+.Rproj.user/
+.Rhistory
+.RData
+*.Rproj
+
+#documentos y fomatos 
+*.[Rr]
+*.[Pp][Dd][Ff]
+*.[Hh][Tt][Mm][Ll]
