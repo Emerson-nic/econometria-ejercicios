@@ -346,7 +346,7 @@ print(model_garch0)
 
 El script GARCH muestra 2 formas de calcular los errores estandares en este caso se usa los errores robustos, en la cual sus coeficientes significan:
 
--  $\mu$ es el la media de la serie, es decir el promedio de la tasa de variacion de los latidos cardiacos, en este caso es -0.001 (-0.1% de tasa de variacion), este valor es significativo pero muy chico.
+- $\mu$ es el la media de la serie, es decir el promedio de la tasa de variacion de los latidos cardiacos, en este caso es -0.001 (-0.1% de tasa de variacion), este valor es significativo pero muy chico.
 
 - $\omega$ es la varianza en terminos constantes, es decir el minimo de volatilidad que siempre existira en el ritmo cardiaco, entonces al rededor de 0.001 (0.01%) tasa de creciemiento cardiaco, es la minima varianza en peridos de calma.
 
