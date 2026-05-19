@@ -143,18 +143,46 @@ print(prueba_pvalue1)
 
 La serie original es no estacionaria tiene tendencia, aunque la serie es estacionaria en I(1).
 
+# Grafico diferenciado
+
+```{r grafico diff, echo=FALSE}
+#dataset diff 1
+dataset_diff <- dataset_limpio %>%
+  mutate(
+    bpm_log = log(bpm),
+    bpm_diff = bpm_log - lag(bpm_log, n = 1) 
+  ) %>%
+  filter(!is.na(bpm_diff)) %>%
+  select(fecha_hora, bpm_diff)
+
+#grafico
+serie_diff <- ggplot(dataset_diff, aes(x = fecha_hora, y = bpm_diff)) +
+  geom_area(fill = "#ff9999", alpha = 0.2) +
+  geom_line(color = "#cc0000", linewidth = 1) +
+  coord_cartesian(ylim = c(NA, NA)) +
+  scale_x_datetime(date_labels = "%H:%M", date_breaks = "4 hours") +
+  labs(
+    title = "Ritmo Cardiaco Diferenciado Emer",
+    subtitle = "Rigistro Historico Diferenciado BPM",
+    x = "Hora del registro",
+    y = "Latidos por Minuto (BPM)",
+    caption = "Fuente: Datos extraídos de Mi Fitness \nFecha contenida del 09 a 10 de marzo 2026"
+  ) + 
+  theme_minimal(base_size = 14) +
+  theme(
+    plot.title = element_text(face = "bold", color = "#333333", hjust = 0.5),
+    plot.subtitle = element_text(color = "#666666", hjust = 0.5, margin = margin(b = 15)),
+    axis.title = element_text(face = "bold", color = "#555555"),
+  )
+
+print(serie_diff)
+```
+
 ### Autocorrelacion diff
 
 #### PACF diff
 
 ```{r pacf_diff, echo=FALSE}
-dataset_diff <- dataset_limpio %>%
-  mutate(
-    bpm_diff = bpm - lag(bpm, n = 1) 
-  ) %>%
-  filter(!is.na(bpm_diff)) %>%
-  select(fecha_hora, bpm_diff)
-
 #pacf
 pacf(dataset_diff$bpm_diff,
      main = 'PACF (Serie Diferenciada)',
@@ -260,48 +288,151 @@ El ritmo cardatico de Emer presenta clusteres de volatilidad (peroodos de alta a
 
 Para estimar el ARIMA-GARCH se uso la libreria rugarch, donde el script es pensado originalmente para un ARMA-GARCH, pero como los datos ya estan diferenciados tiene el componente (I) indirectamente, por lo que matematicamente el modelo es:
 
-$$
-y_{t}=\mu + \phi_{1}y_{t-1}+\epsilon_{t}+\theta_{1}y_{t-1}
-$$
+$$y_{t}=\mu + \phi_{1}y_{t-1}+\epsilon_{t}+\theta_{1}y_{t-1}$$
 
 Que es el ARMA donde:
 
--   $y_t$: Es la serie observada (diferencia de BPM).
+- $y_t$: Es la serie observada (diferencia de BPM).
 
--   $\mu$: Es el intercepto o valor promedio de la serie (`mu`).
+- $\mu$: Es el intercepto o valor promedio de la serie (`mu`).
 
--   $\phi_1 y_{t-1}$: El componente autorregresivo (AR). Es la parte de tus latidos que "recuerda" el periodo anterior (tu `ar1`).
+- $\phi_1 y_{t-1}$: El componente autorregresivo (AR). Es la parte de tus latidos que "recuerda" el periodo anterior (tu `ar1`).
 
--   $\theta_1 \epsilon_{t-1}$: El componente de media movil (ma). Representa como los choques aleatorios del pasado afectan el presente (`ma1`).
+- $\theta_1 \epsilon_{t-1}$: El componente de media movil (ma). Representa como los choques aleatorios del pasado afectan el presente (`ma1`).
 
--   $\epsilon_t$: Es el residuo en el tiempo $t$.
+- $\epsilon_t$: Es el residuo en el tiempo $t$.
 
 El modelo matematico GARCH es:
 
-$$
-\sigma_t^2 = \omega + \alpha_1 \epsilon_{t-1}^2 + \beta_1 \sigma_{t-1}^2
-$$
+$$\sigma_t^2 = \omega + \alpha_1 \epsilon_{t-1}^2 + \beta_1 \sigma_{t-1}^2$$
 
 En la cual:
 
--   $\sigma_t^2$: Es la varianza condicional (la volatilidad al cuadrado en el tiempo $t$).
+- $\sigma_t^2$: Es la varianza condicional (la volatilidad al cuadrado en el tiempo $t$).
 
--   $\omega$: Es la constante de la varianza (`omega`), que garantiza que la volatilidad siempre sea positiva.
+- $\omega$: Es la constante de la varianza (`omega`), que garantiza que la volatilidad siempre sea positiva.
 
--   $\alpha_1 \epsilon_{t-1}^2$: El efecto arch. Mide como los choques o noticias del periodo anterior (latidos bruscos) incrementan la volatilidad actual.
+- $\alpha_1 \epsilon_{t-1}^2$: El efecto arch. Mide como los choques o noticias del periodo anterior (latidos bruscos) incrementan la volatilidad actual.
 
--   $\beta_1 \sigma_{t-1}^2$: El efecto garch. Mide la persistencia de la volatilidad. Si ayer hubo mucha agitacion, esta parte hace que hoy tambien la haya.
+- $\beta_1 \sigma_{t-1}^2$: El efecto garch. Mide la persistencia de la volatilidad. Si ayer hubo mucha agitacion, esta parte hace que hoy tambien la haya.
 
 El componente ARMA modela la media condicional de los BPM (su tendencia central), mientras que el proceso GARCH captura la varianza condicional (volatilidad). Esta funcion permite generar intervalos de confianza en tiempo real a la incertidumbre del sistema, lo que robustece la capacidad predictiva frente a choque estrucutales del corazon de Emerson. El conector de ambos modelos estan en el residuo ($\epsilon_t$), donde el residuo se calcula como $\epsilon_t = \sigma_t z_t$ que es el resultado de multiplicar la volatilidad calculada por el GARCH ($\sigma_t$) por el ruido blanco ($z_t$).
 
-### Modelo ARIMA-GARCH
+### Modelado GARCH (1,1) Distribucion t de Student Estandarizada (std)
 
-```{r modelo_arima_garch, echo=FALSE}
-
+```{r garch(1,1), echo=FALSE}
 #arreglar la fecha
 dataset_xts <- xts(dataset_diff$bpm_diff, order.by = dataset_diff$fecha_hora)
 colnames(dataset_xts) <- "bpm_diff"
 
+cat("Modelo GARCH(1,1)")
+
+#Especificar el modelo
+especificacion1 <- ugarchspec(
+  variance.model = list(model = "sGARCH", garchOrder = c(1, 1)),
+  mean.model = list(armaOrder = c(0, 0), include.mean = TRUE),
+  distribution.model = "std")
+
+#las distribuciones a probar, sstd, ged, sged, nig
+
+#Estimar el modelo
+model_garch0 <- ugarchfit(spec = especificacion1, 
+                     data = dataset_xts$bpm_diff)
+
+#Visualizar resultados
+print(model_garch0)
+
+```
+
+El script GARCH muestra 2 formas de calcular los errores estandares en este caso se usa los errores robustos, en la cual sus coeficientes significan:
+
+-  $\mu$ es el la media de la serie, es decir el promedio de la tasa de variacion de los latidos cardiacos, en este caso es -0.001 (-0.1% de tasa de variacion), este valor es significativo pero muy chico.
+
+- $\omega$ es la varianza en terminos constantes, es decir el minimo de volatilidad que siempre existira en el ritmo cardiaco, entonces al rededor de 0.001 (0.01%) tasa de creciemiento cardiaco, es la minima varianza en peridos de calma.
+
+- $\alpha$ mide como la volatilidad reacciona durante el periodo actual antes shocks sorpresivos del periodo anterior. Ante shock sorpresivos en los latidos genera alrededor del 77% tasa de transferencia del impacto del ritmo cardiaco.
+
+- $\beta$ mide cuanto de la volatilidad del periodo anterior se traslada a la volatilidad del perodio actual, por lo que este coeficiente calcula la memoria volatil de la serie. El valo obtenido de la constante beta es del alrededor del 22% tasa de transferencia del impacto, aunque no significativos.
+
+- $shape$ mide los grados de libertad, lo que es decir que tan pesadas son las colas de la distribucion. Si un $\nu > 30$ ya se considera estadisticamente identico a una distribucion mormal. En este caso $v\approx2.7$ indica colas pesadas pero se puede moledar la varianza.
+
+En cuanto a los tests Ljung-Box al cuadrado (no autocorrelacion en la varianza) y ARCH-LM, tienen efectos no significativos en los distintos rezagos de tiempo, es decir las $h_{0}$: no autocorrelacion y $h_0$: homocedatidad (no efectos ARCH, varianza constante). No existen evidencia estadistica para rechazar las hipotesis nulas. La razon por la que el test Ljung-Box estandarizafo es altamente significativo ($p<0.01$), es porque no se hizo un modelo arima osea no hay un modelo que capture esta dependencia lineal de autocorrelacion de la media ($\mu$).
+
+El test de estabilidad estructural donde $h_0$: estabilidad parametrica (parametros $\mu, \omega, \alpha_n, \beta_n$ constantes), el conjunto estadistico es 5.15 que supera el valor critico de 1.88, existe evidencia para rechazar la $h_0$ se rechazar la estabilidad parametrica. Los que generan esta inestabilidad son dos paremetros el alpha1 ($\alpha_1$) rechaza la $h_0$ al 1%. Cada shock de alpha1 cambio estructuralmente la serie en tasa de variacion.
+
+La prueba Sign Bias Test (prueba de efecto apalancamiento / asimetria) donde $h_0$: simetria ante shocks positivos o negativos. En esta prueba se busca saber si; en este caso; los ritmos carticados sufren la misma volatilidad ante shocks positivos o negativos donde se confirma la asimetria.
+
+El ultimos test Prueba de Bondad de Ajuste (Adjusted Pearson Goodness-of-Fit Test) prueba si la distrubucion es correcta, $h_0$: la distribucion elegida es la correcta, en este caso se debe de cambiar la distribucion.
+
+### Modelado GARCH (1,1) con Distribucion Automatizadas
+
+```{r garch_automatico(1,0), echo=FALSE}
+distribuciones <- c("sstd", "ged", "sged", "nig", "std")
+
+#crear contenedores para guardar los modelos y log-Likelihoods
+modelos_ajustados <- list()
+log_likelihoods <- numeric(length(distribuciones))
+names(log_likelihoods) <- distribuciones
+
+cat("bacar modelo GARCH(1,1) con la mejor distribucion\n\n")
+
+#bucle para buscar
+for (i in seq_along(distribuciones)) {
+  dist <- distribuciones[i]
+  
+  # Especificar el modelo iterativamente
+  especificacion00 <- ugarchspec(
+    variance.model = list(model = "sGARCH", garchOrder = c(1, 1)),
+    mean.model = list(armaOrder = c(0, 0), include.mean = TRUE),
+    distribution.model = dist
+  )
+  #estimar el modelo
+  ajuste <- ugarchfit(spec = especificacion00, data = dataset_xts$bpm_diff, solver = "hybrid")
+  
+  #validar convergencia y extraer el log-likelihood
+  if (!is.null(ajuste)) {
+    modelos_ajustados[[dist]] <- ajuste
+    ll <- likelihood(ajuste) #extrae el log-likelihood 
+    log_likelihoods[i] <- ll
+    
+    cat(sprintf("distribucion %-5s | log-likelihood: %f\n", dist, ll))
+  } 
+}
+
+#guarda el modelo optimo
+mejor_dist <- names(which.max(log_likelihoods))
+mejor_ll <- max(log_likelihoods)
+
+cat(sprintf("la mejor distribucion empirica es '%s'\n", toupper(mejor_dist)))
+cat(sprintf("mejor log-likelihood: %f\n", mejor_ll))
+```
+
+### Modelado GARCH (1,1) Distribucion Generalizada del Error Sesgada (SGED)
+
+```{r garch_sged(1,1), echo=FALSE}
+cat("Modelo GARCH(1,1) con distribucion sged")
+
+#Especificar el modelo
+especificacion_sged <- ugarchspec(
+  variance.model = list(model = "sGARCH", garchOrder = c(1, 1)),
+  mean.model = list(armaOrder = c(0, 0), include.mean = TRUE),
+  distribution.model = "sged")
+
+#las distribuciones a probar, sstd, ged, sged, nig, std
+
+#Estimar el modelo
+model_garch_sged <- ugarchfit(spec = especificacion_sged, 
+                     data = dataset_xts$bpm_diff)
+
+#Visualizar resultados
+print(model_garch_sged)
+cat("Modelo GARCH(1,1) sged con LogLikelihood : 982.6545\n")
+cat("Modelo GARCH(1,1) std con LogLikelihood : 961.239")
+```
+
+### Modelo ARIMA-GARCH
+
+```{r modelo_arima_garch, echo=FALSE}
 #componentes del ARMA - GARCH como ya esta diferenciado es ARIMA - GARCH
 especificacion_garch <- ugarchspec(
   #garch
@@ -311,7 +442,7 @@ especificacion_garch <- ugarchspec(
   mean.model = list(armaOrder = c(1, 1), include.mean = TRUE),
   
   # distribucion t 
-  distribution.model = "std" 
+  distribution.model = "sged" 
 )
 
 #modelo
@@ -321,6 +452,8 @@ modelo_garch <- ugarchfit(
   solver = 'hybrid'
 )
 
+print(modelo_garch)
+cat("========================\n")
 print(modelo_garch@fit$matcoef)
 
 #forestcast 
@@ -403,7 +536,7 @@ tabla de pronostico
 
 ```{r tabla_pronostico, echo=FALSE}
 # fitted() extrae la media (los cambios en BPM)
-cambios_pronosticados <- as.numeric(fitted(pronostico_garch))
+tasas_pronosticadas <- as.numeric(fitted(pronostico_garch))
 
 # sigma() extrae la desviacion estandar
 volatilidad_pronosticada <- as.numeric(sigma(pronostico_garch))
@@ -412,14 +545,15 @@ volatilidad_pronosticada <- as.numeric(sigma(pronostico_garch))
 ultimo_bpm_real <- tail(dataset_limpio$bpm, 1)
 
 #bpm futuro
-bpm_absolutos_proyectados <- ultimo_bpm_real + cumsum(cambios_pronosticados)
+bpm_absolutos_proyectados <- ultimo_bpm_real * exp(cumsum(tasas_pronosticadas))
 
 #tabla
 tabla_resultados <- data.frame(
   Periodo_Futuro = 1:24,
-  Variacion_Media_BPM = round(cambios_pronosticados, 3),
-  BPM_Proyectado = round(bpm_absolutos_proyectados, 1),
-  Volatilidad_Sigma = round(volatilidad_pronosticada, 3)
+  
+  Tasa_Media_BPM_Pct = round(tasas_pronosticadas * 100, 3), 
+  BPM_Absoluto_Proyectado = round(bpm_absolutos_proyectados, 1),
+  Volatilidad_Sigma = round(volatilidad_pronosticada, 4)
 )
 
 print(tabla_resultados)
