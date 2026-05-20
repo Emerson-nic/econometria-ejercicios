@@ -430,6 +430,20 @@ cat("Modelo GARCH(1,1) sged con LogLikelihood : 982.6545\n")
 cat("Modelo GARCH(1,1) std con LogLikelihood : 961.239")
 ```
 
+El log-likelihood mejoro con la Distribucion Generalizada del Error Sesgada (SGED), mas sin embargo la prueba Adjusted Pearson Goodness-of-Fit es altamente significativa por lo que se debe agregar un componente arma.
+
+En esta distribucion se agrega un coeficiente skew que es el parametro de asimetria (sesgo), mide si la campana de los residuos se inclina hacia la izquierda o hacia la derecha.
+
+donde
+
+- Si skew = 1.0: La campana es perfectamente simetrica. Las colas izquierda y derecha son identicas.
+
+- Si skew \> 1.0: Hay asimetria positiva (la cola derecha es mas larga).
+
+- Si skew \< 1.0: Hay asimetria negativa (la cola izquierda es mas larga).
+
+En esta caso es basicamente 1, osea que la distrbucion es simetrica y significativa. El modelo esta sobre ajustado, estos resultados no son creibles.
+
 ### Modelo ARIMA-GARCH
 
 ```{r modelo_arima_garch, echo=FALSE}
@@ -474,6 +488,12 @@ plot(pronostico_garch, which = 3,
 
 par(mfrow = c(1, 1)) #funcion para volver al plot normal
 ```
+
+Los coeficientes del nuevo modelo con el componente arma son significativos y con un mejor log-likelihood que solo un modelo garch, aunque en la prueba de simetria (Sign Bias Test) son significativas sugieren un Egarch, la prueba de Adjusted Pearson Goodness-of-Fit Test, es igual significativa por lo que se siguiere otra distribucion y sobre la estabilida estructual (Nyblom stability test) son significativas, el modelo no puede capturar correctamente el la valatilidad.
+
+El modelo no puede capturar bien los outlier, Este es el mejor resultado obtenido segun el criterio Log-likelihood, que si bien puede capturar la varianza por un periodo de tiempo, los outlier, son demasiado pesados y comunes que sesgan altemente los coefientes.
+
+Lo mejor es mejorar mejorar el dataset tambien es mejor usar maching learnig o deep learning dado el alto numero de observaciones. No se recomienda procesos lineales en datos biometricos como estos a no ser de que se le agregue dummys significativos que expliquen estos outliers, tambien no se deben de omitir o eliminar los outlier porque son tan comunes y probables como un ritmo cardiaco normal.
 
 ```{r residuos_ARIMA-GARCH, echo=FALSE}
 #residuos
@@ -532,7 +552,7 @@ ggplot(raices_df, aes(x = Raiz_Invertida, y = Imaginaria, color = Tipo, shape = 
   theme(legend.position = "bottom")
 ```
 
-tabla de pronostico
+### Tabla de pronostico
 
 ```{r tabla_pronostico, echo=FALSE}
 # fitted() extrae la media (los cambios en BPM)
