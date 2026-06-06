@@ -1,0 +1,239 @@
+---
+title: "Análisis de Cointegración Estructural"
+subtitle: "Johansen Test"
+author: ""
+date: "2026-06-05"
+format: 
+  revealjs:
+    theme: simple
+    center: true
+    width: 1280
+    height: 720
+    slide-number: true
+    preview-links: auto
+    logo: bonita (1).png 
+    css: styles.css
+title-slide-attributes:
+  data-background-color: "#1a365d" 
+  data-background-opacity: "0.9"
+execute:
+  echo: false
+---
+
+## Ejemplo
+
+::: {style="width: 90%; margin: 0 auto; text-align: justify;"}
+
+```{r}
+#| lebel: dataset
+#| echo: false
+
+# instalar y cargar ----
+options(repos = c(CRAN = "https://cloud.r-project.org"))
+if (!require("pacman")) install.packages("pacman")
+
+pacman::p_load(
+  urca, tseries, dplyr, vars, readxl, tidyr, ggplot2, plotly
+)
+
+data <- read_excel("data.xlsx")
+
+# preparacion de datos 
+series <- c("itcer",
+            "ipi_eeuu",
+            "iti",
+            "transable",
+            "remesas",
+            "no_transable")
+
+data_cointegracion <- data %>%
+  dplyr::select(itcer, ipi_eeuu, iti, transable, remesas) %>%
+  na.omit()
+
+#dummys
+data_con_dummies <- data %>% 
+  mutate(
+    dummy_2008 = ifelse(año == 2008 & mes %in% c("III", "IV"), 1, 0),
+    dummy_2018 = ifelse(año == 2018 & mes %in% c("II", "III", "IV"), 1, 0),
+    dummy_2020 = ifelse(año == 2020, 1, 0)
+  ) %>% 
+  dplyr::select(-date)
+
+#combinar al dataset
+
+variables_endogenas <- data_con_dummies %>%
+  dplyr::select(itcer, ipi_eeuu, iti, transable, remesas)
+
+variables_exogenas <- data_con_dummies %>%
+  dplyr::select( dummy_2008,
+                 dummy_2018,
+                 dummy_2020)
+```
+
+Elaboracion propia apartir de datos del BCN & SECMCA
+
+```{r}
+#| label: grafico
+#| echo: false
+
+# grafico interactivo ----
+data_grafico_base <- data_con_dummies %>%
+  mutate(
+    mes_num = case_when(
+      mes == "I"   ~ "01",
+      mes == "II"  ~ "04",
+      mes == "III" ~ "07",
+      mes == "IV"  ~ "10"
+    ),
+    fecha_real = as.Date(paste(año, mes_num, "01", sep = "-"))
+  ) %>%
+  pivot_longer(
+    cols = c(itcer, ipi_eeuu, iti, transable, remesas),
+    names_to = "variable",
+    values_to = "valor"
+  ) %>%
+  na.omit()
+
+grafico_base <- ggplot(data_grafico_base, aes(x = fecha_real, y = valor, color = variable)) + 
+  geom_line(linewidth = 0.8) +
+  facet_wrap(~variable, scales = "free_y", ncol = 2) +
+  scale_x_date(date_breaks = "2 years", date_labels = "%Y") +
+  labs(
+    x = "", 
+    y = "", 
+    title = "Evolucion de las Series"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "none",
+        axis.text.x = element_text(angle = 45, hjust = 1))
+
+ggplotly(grafico_base)
+
+```
+:::
+
+## Buscar Series Cointegradas {.smaller}
+
+::: {style="width: 90%; margin: 0 auto; text-align: justify;"}
+
+Se utilizo un maximo de 8 rezagos con criterios AIC <br> Hipotesis Nula de la prueba de trazas ($H_0$): El numero de vectores de cointegracion. <br> Hipotesis Alternativa ($H_1$): El numero de vectores de cointegracion es estrictamente mayor a $r$
+
+```{r}
+#| labal: Cointegracion 1
+#| echo: false
+
+#Johenson test sin correcion de quiebres ====
+
+#especificaciones
+
+#rezagos
+lag_select <- VARselect(data_cointegracion, lag.max = 8, type = "const")
+p_lag <- lag_select$selection["AIC(n)"]
+
+#test de Johansen
+#'ecdet = const' asume una constante en la relación de cointegracion
+johansen_test <- ca.jo(data_cointegracion, 
+                       type = "trace", 
+                       ecdet = "const", 
+                       K = p_lag)
+
+#resultados
+summary(johansen_test)
+
+```
+
+:::
+
+## Numero de vectores de cointegracion (r) {.smaller}
+
+::: {style="width: 90%; margin: 0 auto; text-align: justify;"}
+
+- Raices caracteristicas (autovalores): Representa el peso estadistico de una posible relación de cointegración, los valores de $\lambda$ siempre están entre ($0 \le \lambda \le 1$)
+
+- Test: Existe evidencia estadística para afirmar que el sistema tiene 3 vectores de cointegración (relaciones de largo plazo estables) al nivel de confianza del 5%. Esto confirma que tus variables no se mueven de forma independiente a lo largo del tiempo, están atadas por fuerzas económicas fundamentales.
+
+- Vector de cointegracion: R presenta la ecuación igualada a cero (hay que despejar para interpretar), este modelo asume una pequeña economía abierta que modela desequilibrios que experimenta flujos externos, ideal para modelar desequilibrios en los sectores transables.
+
+$$\begin{aligned}
+ITCER_{t} &= 11.70 + 0.76 IPI\_EEUU_{t} - 0.06 ITI_{t} \\
+          &\quad + 0.15 TRANSABLE_{t} + 1.78 REMESAS_{t}
+\end{aligned}$$
+
+:::
+
+
+## Analisis matematico 
+
+::: {style="width: 90%; margin: 0 auto; text-align: justify;"}
+
+<br> Entonces un incremento permanente de 1 punto porcentual en las remesas (como proporcion del PIB trimestral) genera un aumento de $1.78$ puntos en el índice del ITCER a largo plazo. En el sector transable un aumento de 1 punto porcentual en la participacion del sector de bienes transables sobre el PIB trimestral esta asociado con un incremento de $0.15$ puntos en el ITCER.
+
+:::
+
+## Teoria clasica
+
+::: {style="width: 90%; margin: 0 auto; text-align: justify;"}
+Segun el modelo Salter-Swan de manera teorica, una entrada masiva de remesas es un choque exógeno de riqueza. Las familias reciben más dólares, lo que dispara la demanda interna. Por lo tanto, a más remesas, el ITCER debería bajar (las remesas deberia ser negativas).
+
+<br>
+
+Según el clásico Efecto Balassa-Samuelson, si el sector transable crece por un aumento de productividad, los salarios en este sector suben. Para no perder empleados (Transable deberia ser negativos).
+:::
+
+## Quienes esta cointegrados? {.smaller}
+
+::: {style="width: 90%; margin: 0 auto; text-align: justify;"}
+
+1.  La cointegración no se evala como una propiedad aislada (Variable A frente a Variable B). La cointegración es una propiedad sistémica del vector espacial.
+
+2.  Las cinco variables del sistema (ITCER, IPI, ITI, Transable y Remesas) estan cointegradas conjuntamente. Es la combinacion lineal exacta de todas ellas, dictada por los coeficientes del vector $\beta$, la que colapsa hacia la estacionariedad $I(0)$.
+
+3.  Pruebas de Exclusión (Restricciones Cero): Para determinar si una variable no participa en este equilibrio, se aplica una Prueba de Razon de Verosimilitud (LR Test) imponiendo la restriccion $H_0: \beta_i = 0$. Rechazar esta hipotesis nula constituye la prueba matemática de que la variable es un componente irreemplazable de la relacion de cointegración del sistema.
+
+4.  Reducir este analisis a pares mediante la metodologia (Engle-Granger) destruiria la matriz de informacion. En la evaluacion de dinamicas de economia abierta, los desequilibrios del ITCER no pueden explicarse aislando las remesas del resto de factores productivos e internacionales, las cinco variables interactúan de forma endogena y simultanea.
+
+:::
+
+## Johnsen Incluyendo Dummys
+
+```{r}
+#| label: dummy
+#| echo: false
+
+#johnsen test con amortiguadores estructurales ----
+
+#dummys
+data_con_dummies <- data %>% 
+  mutate(
+    dummy_2008 = ifelse(año == 2008 & mes %in% c("III", "IV"), 1, 0),
+    dummy_2018 = ifelse(año == 2018 & mes %in% c("II", "III", "IV"), 1, 0),
+    dummy_2020 = ifelse(año == 2020, 1, 0)
+  )
+
+#combinar al dataset
+
+variables_endogenas <- data_con_dummies %>%
+  dplyr::select(itcer, ipi_eeuu, iti, transable, remesas)
+
+variables_exogenas <- data_con_dummies %>%
+  dplyr::select( dummy_2008,
+                 dummy_2018,
+                 dummy_2020)
+
+#especificar de nuevo
+
+lag_select_nuevo <- VARselect(variables_endogenas, lag.max = 8, type = "const", 
+                              exogen = variables_exogenas)
+
+p_lag_nuevo <- lag_select_nuevo$selection["AIC(n)"]
+
+#johansen test
+
+johansen_test1 <- ca.jo(variables_endogenas, 
+                        type = "trace", 
+                        ecdet = "const", 
+                        K = p_lag_nuevo,
+                        dumvar = variables_exogenas)
+#resultados
+summary(johansen_test1)
+```
