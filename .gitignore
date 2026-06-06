@@ -1,6 +1,9 @@
-* .Rhistory
-* angle_ganger.R
-* bonita.png
-* .html
-* .Rproj
-* uni_ni.png
+.Rhistory
+angle_ganger.R
+bonita.png
+uni_ni.png
+
+*.html
+*.Rproj
+
+.Rproj.user/
