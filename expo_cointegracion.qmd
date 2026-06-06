@@ -15,7 +15,7 @@ format:
     css: styles.css
 title-slide-attributes:
   data-background-color: "#1a365d" 
-  data-background-opacity: "0.9"
+  # data-background-opacity: "0.9"
 execute:
   echo: false
 ---

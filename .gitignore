@@ -1,9 +1,11 @@
-.Rhistory
 angle_ganger.R
+cointegracion_serial.R
 bonita.png
 uni_ni.png
 
 *.html
-*.Rproj
+*_files/
 
+.Rhistory
+*.Rproj
 .Rproj.user/
