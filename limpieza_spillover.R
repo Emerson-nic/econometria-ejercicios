@@ -9,8 +9,15 @@ if (FALSE) {
   estan sacadas de la base de datos de siboif exactamete de la hoja
   SISTEMA_BANCARIO
   
+  en tasas pasiva se obtiene del secmca Tasa de interés pasiva 
+  nominal en ME (Moneda Extranjera) ya que la nueva metodologia del bcn
+  pondera con referencia 2019-2023 entonces las observacionesque ofrece son
+  a partir de enero de 2020
+  
   Esta dataset busca saber si existe el fenomeno spillover por remesas,
   este archivo solo es limpieza de dataset
+  
+  remesas en millones de dolares 
   "
 }
 
@@ -19,6 +26,9 @@ options(repos = c(CRAN = "https://cloud.r-project.org"))
 if (!require("pacman")) install.packages("pacman")
 
 pacman::p_load(tidyverse,
+               dplyr,
+               tidyr,
+               stringr,
                readxl,
                lubridate,
                janitor
@@ -27,22 +37,23 @@ pacman::p_load(tidyverse,
 # funcion para pivotar el siboif (de formato contabilidad a timeseries) ----
 procesar_siboif <- function(file_path, sheet_name) {
   #lee el archivo saltando los encabezados iniciales
-  df_raw <- read_excel(file_path, sheet = sheet_name, skip = 9) %>% 
-    clean_names() 
+  df_raw <- read_excel(file_path, sheet = sheet_name, skip = 9) %>%
+    clean_names()
   
   #transponer y limpiar fechas
   df_clean <- df_raw %>%
-    rename(cuenta = 1) %>% 
-    filter(!is.na(cuenta)) %>% 
-    pivot_longer(cols = -cuenta, names_to = "fecha_texto", values_to = "valor") %>%
-    mutate(
-      fecha_texto = str_remove(fecha_texto, "^x"),
+    dplyr::rename(cuenta = 1) %>% 
+    dplyr::filter(!is.na(cuenta)) %>% 
+    tidyr::pivot_longer(cols = -cuenta, names_to = "fecha_texto", values_to = "valor") %>%
+    dplyr::mutate(
+      fecha_texto = stringr::str_remove(fecha_texto, "^x"),
       fecha = dmy(fecha_texto),
       fecha = floor_date(fecha, "month") 
     ) %>%
-    drop_na(fecha, valor) %>% 
-    select(fecha, cuenta, valor) %>%
-    pivot_wider(names_from = cuenta, values_from = valor) %>%
+    tidyr::drop_na(fecha, valor) %>% 
+    dplyr::distinct(fecha, cuenta, .keep_all = TRUE) %>%
+    dplyr::select(fecha, cuenta, valor) %>%
+    tidyr::pivot_wider(names_from = cuenta, values_from = valor) %>%
     clean_names()
   
   return(df_clean)
@@ -50,58 +61,134 @@ procesar_siboif <- function(file_path, sheet_name) {
 
 #aplicar la funcion anterior ----
 
-bg <- procesar_siboif("ib_balance_general_0.xlsx", "SISTEMA BANCARIO")
-er <- procesar_siboif("ib_estado_resultados_0.xlsx", "SISTEMA BANCARIO")
+bg <- procesar_siboif("ib_balance_general_0.xlsx", "SISTEMA_BANCARIO")
+bg_18 <- procesar_siboif("ib_balance_general.xlsx", "SISTEMA_BANCARIO")
+er <- procesar_siboif("ib_estado_resultados_0.xlsx", "SISTEMA_BANCARIO")
+er_18 <- procesar_siboif("ib_estado_resultados.xlsx", "SISTEMA_BANCARIO")
 
+print("nombres en Balance General (bg):")
+print(names(bg))
+print("nombres en Estado de Resultados (er):")
+print(names(er))
+print("dataset Balance General (bg):")
+print(head(bg, 12))
+print("dataset en Estado de Resultados (er):")
+print(head(er, 12))
+
+
+print("nombres en Balance General (bg_18):")
+print(names(bg_18))
+print("nombres en Estado de Resultados (er_18):")
+print(names(er_18))
+print("dataset Balance General (bg_18):")
+print(head(bg_18, 12))
+print("dataset en Estado de Resultados (er_18):")
+print(head(er_18, 12))
+
+# series apartir del 2019
 siboif_ts <- bg %>%
-  full_join(er, by = "fecha") %>%
-  mutate(across(everything(), ~replace_na(., 0))) %>%
-  mutate(
-    roa = resultado_del_ejercicio / activo,
-    liquidez = (disponibilidades + inversiones_a_corto_plazo) / pasivo,
+  dplyr::full_join(er, by = "fecha") %>%
+  dplyr::mutate(across(everything(), ~tidyr::replace_na(., 0))) %>%
+  dplyr::mutate(
+    roa = resultado_del_ejercicio.y / activo,
+    liquidez = (efectivo_y_equivalentes_de_efectivo + inversiones_a_valor_razonable_con_cambios_en_resultados) / pasivo,
     apalancamiento = pasivo / patrimonio
   ) %>%
-  #seleccionar solo las variables de interés para el modelo 
-  select(fecha, roa, liquidez, apalancamiento)
+  #seleccionar solo las variables de interes para el modelo 
+  dplyr::select(fecha, roa, liquidez, apalancamiento)
+
+#serie hasta 2018
+
+siboif_18_ts <- bg_18 %>%
+  dplyr::full_join(er_18, by = "fecha") %>%
+  dplyr::mutate(across(everything(), ~tidyr::replace_na(., 0))) %>%
+  dplyr::mutate(
+    roa = resultados_del_periodo.y / activo, 
+    liquidez = (disponibilidades + inversiones_al_valor_razonable_con_cambios_en_resultados) / pasivo,
+    apalancamiento = pasivo / patrimonio
+  ) %>%
+  dplyr::select(fecha, roa, liquidez, apalancamiento)
+
+print(head(siboif_18_ts$roa, 12))
+
+#empalme dog
+siboif_completo_ts <- dplyr::bind_rows(siboif_18_ts, siboif_ts) %>%
+  dplyr::arrange(fecha) %>%
+  dplyr::distinct(fecha, .keep_all = TRUE)
 
 #limpieza de las remesas ----
 
-remesas_ts <- read_excel("remesas.xls", sheet = "1a.2.1.04", skip = 4) %>%
-  rename(anio = 1) %>%
-  select(-Total) %>% 
-  filter(!is.na(anio)) %>%
-  pivot_longer(cols = -anio, names_to = "mes", values_to = "flujo_remesas") %>%
-  mutate(
+remesas_raw <- readxl::read_excel("remesas.xls", sheet = "1a.2.1.04", skip = 0) 
+print("nombres en remesas")
+print(names(remesas_raw))
+print(head(remesas_raw, 10))
+
+remesas_ts <- readxl::read_excel("remesas.xls", 
+                                 sheet = "1a.2.1.04", 
+                                 skip = 5, 
+                                 col_names = FALSE) %>%
+
+  setNames(c("anio", "Ene", "Feb", "Mar", "Abr", "May", "Jun", 
+             "Jul", "Ago", "Sep", "Oct", "Nov", "Dic", "extra")) %>%
+  dplyr::select(-extra) %>%
+  dplyr::mutate(anio = as.numeric(anio)) %>%
+  dplyr::filter(!is.na(anio)) %>%
+  tidyr::pivot_longer(cols = -anio, names_to = "mes", values_to = "flujo_remesas") %>%
+  dplyr::mutate(
+    flujo_remesas = as.numeric(flujo_remesas),
     mes_num = match(mes, c("Ene", "Feb", "Mar", "Abr", "May", "Jun", 
                            "Jul", "Ago", "Sep", "Oct", "Nov", "Dic")),
     fecha = make_date(anio, mes_num, 1)
   ) %>%
-  select(fecha, flujo_remesas) %>%
-  drop_na()
+  dplyr::select(fecha, flujo_remesas) %>%
+  tidyr::drop_na()
 
 #liempieza en tasa de interes ----
 
-tasas_raw <- read_excel("activaspasivas ponderadas_2021_2025.xlsx", sheet = "Tasas Pasivas")
+tasas_raw <- suppressMessages(readxl::read_excel("Tasas de interés en moneda extranjera.xls", 
+                                                 sheet = "Datos",  
+                                                 skip = 0))
+print("nombres en tasas")
+print(names(tasas_raw))
+print(head(tasas_raw, 10))
 
-tasa_pasiva_fila <- tasas_raw %>%
-  filter(str_detect(tolower(names(.)[1]), "total|córdobas|dólares")) %>%
-  slice(1) 
 
-valores_tasa <- as.numeric(tasa_pasiva_fila[-1])
-valores_tasa <- valores_tasa[!is.na(valores_tasa)] 
+tasas_raw <- suppressMessages(readxl::read_excel("Tasas de interés en moneda extranjera.xls", 
+                                                 sheet = "Datos",
+                                                 skip = 7,
+                                                 col_names = FALSE)) 
+print("nombres en tasas")
+print(names(tasas_raw))
+print(head(tasas_raw, 10))
 
-tasas_ts <- tibble(
-  fecha = seq(as.Date("2020-01-01"), by = "month", length.out = length(valores_tasa)),
-  tasa_pasiva = valores_tasa
-)
+tasas_ts <- tasas_raw %>%
+  dplyr::select(1, 2) %>%
+  dplyr::rename(tiempo_raw = 1, tasa_pasiva = 2) %>%
+  dplyr::mutate(tasa_pasiva = as.numeric(tasa_pasiva)) %>%
+  tidyr::drop_na(tasa_pasiva) %>%
+  dplyr::mutate(
+    fecha = seq(from = as.Date("1996-01-01"), by = "month", length.out = dplyr::n())
+  ) %>%
+  dplyr::select(fecha, tasa_pasiva)
 
-#unificar
+#unificar ----
 
-dataset_banano <- list(siboif_ts, remesas_ts, tasas_ts) %>%
-  reduce(left_join, by = "fecha") %>%
-  arrange(fecha) %>%
-  drop_na() 
+dataset_banano <- list(siboif_completo_ts, remesas_ts, tasas_ts) %>%
+  purrr::reduce(dplyr::left_join, by = "fecha") %>%
+  dplyr::arrange(fecha) %>%
+  tidyr::drop_na() 
 
-glimpse(dataset_banano)
+#agregar dummys
 
-write_csv(dataset_banano, "dataset_spillover_remesas_clean.csv")
+dataset_banano <- dataset_banano %>%
+  dplyr::mutate(
+    d2008  = dplyr::if_else(lubridate::year(fecha) == 2008, 1, 0),
+    d2018  = dplyr::if_else(lubridate::year(fecha) == 2018, 1, 0),
+    dcovid = dplyr::if_else(fecha >= as.Date("2020-03-01") & fecha <= as.Date("2021-12-01"), 1, 0)
+  )
+
+dplyr::glimpse(dataset_banano)
+
+readr::write_csv(dataset_banano, "dataset_spillover_remesas_clean.csv")
+
+

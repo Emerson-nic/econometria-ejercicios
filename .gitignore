@@ -1,3 +1,8 @@
+#archivos r
 .Rhistory
 .Rproj.user/
 spillover.Rproj
+
+#documentos
+*.doc
+*.pdf
