@@ -13,11 +13,14 @@ if(FALSE){
 options(repos = c(CRAN = "https://cloud.r-project.org"))
 if (!require("pacman")) install.packages("pacman")
 
-pacman::p_load(tidyverse, 
+pacman::p_load(tidyverse,
+               dplyr,
+               tidyr, 
                urca, 
                vars,
                ggplot2,
-               tseries)
+               tseries,
+               readr)
 
 # importar datos si no existen en el entorno ----
 if (!exists("df_bananox")) {
@@ -40,15 +43,38 @@ endog_var <- df_bananox[, c("dlog_remesas",
 
 exog_var <- df_bananox[, c("d2018", "dcovid")]
 
-lag_sel <- VARselect(endog_var, lag.max = 12, type = "const", exogen = exog_var)
+tabla_rezagos <- data.frame()
 
-p <- lag_sel$selection["AIC(n)"]
+#bucle para estimar de 1 a 24 rezagos y extraer el Log-Likelihood de cada uno
+for (i in 1:24) {
+  #estimar el modelo temporalmente
+  modelo_tmp <- VAR(endog_var, p = i, type = "const", exogen = exog_var)
+  
+  #extraer el Log-Likelihood del sistema de ecuaciones
+  ll <- as.numeric(stats::logLik(modelo_tmp))
+  
+  #extraer los criterios de informacion (AIC, BIC, HQ y SC)
+  aic_val <- stats::AIC(modelo_tmp)
+  bic_val <- stats::BIC(modelo_tmp)
+  
+  #guardo
+  tabla_rezagos <- rbind(tabla_rezagos, data.frame(
+    Rezago = i,
+    Log_Likelihood = ll,
+    AIC = aic_val,
+    BIC_SC = bic_val 
+  ))
+}
 
-print(p)
+print("tabla comparativa")
+print(tabla_rezagos)
 
-#raices 
-
-roots(var_mod)  
+print(paste("max Log-Likelihood", 
+            tabla_rezagos$Rezago[which.max(tabla_rezagos$Log_Likelihood)]))
+print(paste("min AIC)", 
+            tabla_rezagos$Rezago[which.min(tabla_rezagos$AIC)]))
+print(paste("min BIC/Schwarz", 
+            tabla_rezagos$Rezago[which.min(tabla_rezagos$BIC_SC)]))
 
 # modelo var ----
 
@@ -56,6 +82,17 @@ var_mod <- VAR(endog_var,
                p = p, 
                type = "const", 
                exogen = exog_var)
+
+
+#confirmar residuos 
+
+print("raices (estabilidad)").
+roots(var_mod)  
+
+print("test portmanteau (autocorrelacion)")
+#p-value debe ser > 0.05 los residuos son ruido blanco.
+serial_test <- serial.test(var_mod, lags.pt = 12, type = "PT.asymptotic")
+print(serial_test)
 
 #irf
 

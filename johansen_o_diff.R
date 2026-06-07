@@ -115,6 +115,9 @@ johansen_test <- ca.jo(
 
 summary(johansen_test)
 
+cat("no hay cointegracion no cumple el supuestos de que
+    las variables sean i(1) en niveles (roa es i(0))")
+
 # test de estacionariedad ----
 
 #funcion de estacionariedad
