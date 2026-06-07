@@ -44,6 +44,12 @@ lag_sel <- VARselect(endog_var, lag.max = 12, type = "const", exogen = exog_var)
 
 p <- lag_sel$selection["AIC(n)"]
 
+print(p)
+
+#raices 
+
+roots(var_mod)  
+
 # modelo var ----
 
 var_mod <- VAR(endog_var,
@@ -90,7 +96,15 @@ readr::write_csv(irf_data, "irf_spillover_remesas.csv")
 fevd_mod <- fevd(var_mod, n.ahead = 24)
 plot(fevd_mod)
 
+fevd_roa <- fevd_mod$dlog_remesas[, "roa"]
+plot(0:(length(fevd_roa)-1), fevd_roa, type = "l", xlab = "Horizonte", 
+     ylab = "% varianza del ROA explicada por remesas")
+
+fevd_mod$dlog_remesa
+
 #test granger
 
 causality(var_mod, cause = "dlog_remesas")
+
+
 
