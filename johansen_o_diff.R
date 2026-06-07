@@ -171,9 +171,11 @@ vars_a_testear1 <- c("roa", "d_liquidez", "d_apalancamiento",
 resultados_pval1 <- test_estacionariedad(df_bananox, vars_a_testear1)
 print(resultados_pval1)
 
-#grafico
+#super estacionarios
 
-# graficos de linea por variable ----
+readr::write_csv(df_bananox, "dataset_spillover_transformado.csv")
+
+# graficos de linea por variable trans ----
 
 df_bananox_graficos <- df_bananox %>%
   dplyr::select(-d2018,
