@@ -8,6 +8,14 @@ spillover.Rproj
 *.pdf
 .positai
 
+#html
+*html
+
+#archivos quarto
+
+paper_spillover.tex
+paper_spillover_files/
+
 #archivos cvs
 
 dataset_spillover_remesas_clean.csv
