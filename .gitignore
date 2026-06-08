@@ -7,3 +7,10 @@ spillover.Rproj
 *.doc
 *.pdf
 .positai
+
+#archivos cvs
+
+dataset_spillover_remesas_clean.csv
+dataset_spillover_transformado.csv
+irf_spillover_remesas.csv
+irf_spillover_remesas_generales.csv
