@@ -5,12 +5,12 @@ if (FALSE) {
   las variables: 
   ROA: Resultado del Periodo / Activo Total
   LIQUIDEZ: (Disponibilidades + Inversiones a Corto Plazo) / Pasivo Total
-  APALANCAMIENTO: Pasivo Total / Patrimonio
+  Ratio de Titulos:  inversion titulos / activo
   estan sacadas de la base de datos de siboif exactamete de la hoja
   SISTEMA_BANCARIO
   
   en tasas pasiva se obtiene del secmca Tasa de interés pasiva 
-  nominal en ME (Moneda Extranjera) ya que la nueva metodologia del bcn
+  nominal en ME (Moneda Extranjera) ~ (es un proxy) ya que la nueva metodologia del bcn
   pondera con referencia 2019-2023 entonces las observacionesque ofrece son
   a partir de enero de 2020
   
@@ -18,6 +18,9 @@ if (FALSE) {
   este archivo solo es limpieza de dataset
   
   remesas en millones de dolares 
+  
+  En nicaragua el mercado bursatil es de renta fija por lo que 
+  
   "
 }
 
@@ -91,11 +94,14 @@ siboif_ts <- bg %>%
   dplyr::mutate(across(everything(), ~tidyr::replace_na(., 0))) %>%
   dplyr::mutate(
     roa = resultado_del_ejercicio.y / activo,
-    liquidez = (efectivo_y_equivalentes_de_efectivo + inversiones_a_valor_razonable_con_cambios_en_resultados) / pasivo,
-    apalancamiento = pasivo / patrimonio
+    liquidez = (efectivo_y_equivalentes_de_efectivo + 
+                  inversiones_a_valor_razonable_con_cambios_en_resultados) / pasivo,
+    ratio_titulos = (inversiones_a_valor_razonable_con_cambios_en_resultados +
+                       inversiones_a_valor_razonable_con_cambios_en_otro_resultado_integral +
+                       inversiones_a_costo_amortizado_neto) / activo
   ) %>%
   #seleccionar solo las variables de interes para el modelo 
-  dplyr::select(fecha, roa, liquidez, apalancamiento)
+  dplyr::select(fecha, roa, liquidez, ratio_titulos)
 
 #serie hasta 2018
 
@@ -105,9 +111,9 @@ siboif_18_ts <- bg_18 %>%
   dplyr::mutate(
     roa = resultados_del_periodo.y / activo, 
     liquidez = (disponibilidades + inversiones_al_valor_razonable_con_cambios_en_resultados) / pasivo,
-    apalancamiento = pasivo / patrimonio
+    ratio_titulos = inversiones_en_valores_neto / activo
   ) %>%
-  dplyr::select(fecha, roa, liquidez, apalancamiento)
+  dplyr::select(fecha, roa, liquidez, ratio_titulos)
 
 print(head(siboif_18_ts$roa, 12))
 
