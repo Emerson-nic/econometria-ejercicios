@@ -3,7 +3,15 @@
 if(FALSE){
   "
   
-  Todas las series son estacionarias (I(0)). Se estima un VAR en niveles
+  Todas las series son estacionarias (I(0)). Se estima un VAR en niveles,
+  
+  modelo de 5 a 4 variables porque habia overfitting 
+  serie con autocorrelacion buscar como eliminarla
+  no hay normalidad en los residuos pero el no sesga los irfs
+  serie homocedastica en los residuos
+  raices dentro del circulo
+  con este modelo existe el efecto spillover pero es insignificante para 
+  la economia, el mecanismo de transmision es directo de remesa a roa
   
   
   "
