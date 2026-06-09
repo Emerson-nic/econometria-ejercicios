@@ -4,7 +4,7 @@ author:
   - Emerson López
   - Khaterine Pozo
   - Elías Chavarría
-date: \today
+date: "`r Sys.Date()`"
 abstract: |
   Nicaragua recibe remesas familiares equivalentes a más del 25\% del PIB, las cuales ingresan mayoritariamente al sistema bancario como depósitos.
   Este trabajo investiga si dichos flujos generan un efecto \textit{spillover} sobre la rentabilidad bancaria, transmitido a través de la tasa de interés pasiva y de la inversión en títulos de renta fija.
@@ -13,10 +13,13 @@ abstract: |
   No se detectan respuestas significativas en la tasa pasiva ponderada ni en el ratio de inversiones en títulos, lo que sugiere un canal de transmisión directo, sin mediación de las variables tradicionales del balance.
   La descomposición de varianza indica que las remesas explican alrededor del 14\% de la variabilidad del ROA a dos años, y el test de causalidad de Granger confirma que las remesas preceden temporalmente a las variables bancarias.
   Estos hallazgos evidencian la existencia de un \textit{spillover} real, aunque limitado en su impacto económico, en consonancia con un sistema financiero nicaragüense poco profundo y con un mercado de valores concentrado en renta fija.
+  
 keywords: [remesas, sistema bancario, Nicaragua, spillover, VAR estructural, rentabilidad bancaria]
 jel: [C32, F24, G21, O16]
 format:
   pdf:
+    documentclass: article
+    classoption: [12pt, a4paper]
     keep-tex: true
     fig-caption: true
     number-sections: true
@@ -35,7 +38,15 @@ format:
         \fancyhead[L]{Spillover de remesas y banca en Nicaragua}
         \fancyhead[R]{\thepage}
         \renewcommand{\headrulewidth}{0.4pt}
+        \renewcommand{\abstractname}{Resumen}
 ---
+
+\vspace{0.5cm}
+\begin{center}
+\textbf{Documento de trabajo}\\
+(Versión preliminar – \today)
+\end{center}
+\vspace{0.5cm}
 
 ```{r descargar}
 #| echo: false
@@ -77,4 +88,4 @@ El flujo de remesas...
 #| echo: false
 #| include: false
 df <- read_csv("dataset_spillover_transformado.csv")
-```
+``` 
