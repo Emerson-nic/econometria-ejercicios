@@ -5,15 +5,6 @@ author:
   - Khaterine Pozo
   - Elías Chavarría
 date: "`r Sys.Date()`"
-abstract: |
-  Nicaragua recibe remesas familiares equivalentes a más del 25\% del PIB, las cuales ingresan mayoritariamente al sistema bancario como depósitos.
-  Este trabajo investiga si dichos flujos generan un efecto \textit{spillover} sobre la rentabilidad bancaria, transmitido a través de la tasa de interés pasiva y de la inversión en títulos de renta fija.
-  Mediante un modelo VAR estructural (SVAR) con descomposición recursiva de Cholesky, estimado sobre datos mensuales del período 2019‑2025, se identifican choques en el crecimiento de las remesas y sus respuestas dinámicas en los indicadores financieros del sistema bancario.
-  Los resultados muestran que un choque positivo en la tasa de crecimiento mensual de las remesas produce un incremento inmediato y estadísticamente significativo de la rentabilidad sobre activos (ROA), aunque de magnitud económicamente reducida.
-  No se detectan respuestas significativas en la tasa pasiva ponderada ni en el ratio de inversiones en títulos, lo que sugiere un canal de transmisión directo, sin mediación de las variables tradicionales del balance.
-  La descomposición de varianza indica que las remesas explican alrededor del 14\% de la variabilidad del ROA a dos años, y el test de causalidad de Granger confirma que las remesas preceden temporalmente a las variables bancarias.
-  Estos hallazgos evidencian la existencia de un \textit{spillover} real, aunque limitado en su impacto económico, en consonancia con un sistema financiero nicaragüense poco profundo y con un mercado de valores concentrado en renta fija.
-  
 keywords: [remesas, sistema bancario, Nicaragua, spillover, VAR estructural, rentabilidad bancaria]
 jel: [C32, F24, G21, O16]
 format:
@@ -29,24 +20,85 @@ format:
     linestretch: 1.5
     include-in-header:
       text: |
-        \usepackage{booktabs}
+        % idioma 
+        \usepackage[utf8]{inputenc}
+        \usepackage[T1]{fontenc}
+        \usepackage[spanish, es-tabla]{babel}
+        \usepackage{csquotes}
+
+        % matematicas y simbolos
         \usepackage{amsmath}
-        \usepackage{setspace}
-        \usepackage{hyperref}
+        \usepackage{amsfonts}
+        \usepackage{amssymb}
+        \usepackage{siunitx}
+        \sisetup{detect-all, table-number-alignment=center}
+        \usepackage{newunicodechar}
+        \newunicodechar{−}{\ensuremath{-}}
+
+        % graficos y colores
+        \usepackage{xcolor}
+        \usepackage{graphicx}
+        \usepackage{tikz}
+        \usetikzlibrary{arrows.meta, positioning}
+        \usepackage{adjustbox}
+
+        % tablas
+        \usepackage{booktabs}
+        \usepackage{tabularx}
+        \usepackage{longtable}
+        \usepackage{multirow}
+        \usepackage{array}
+        \usepackage{makecell}
+        \usepackage{threeparttable}
+        \usepackage{float}
+
+        % captions
+        \usepackage{caption}
+        \captionsetup{skip=0.33\baselineskip}
+        \captionsetup[figure]{justification=centering, singlelinecheck=off}
+        \newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+        \setlength{\tabcolsep}{3pt}
+
+        % enlaces y bibliografia
+        \usepackage[colorlinks=true, allcolors=blue]{hyperref}
+        \usepackage[
+            backend=biber,
+            style=apa,
+            sortcites=true,
+            sorting=nyt,
+            language=auto
+        ]{biblatex}
+        \addbibresource{referencias.bib}
+
+        % encabezado
         \usepackage{fancyhdr}
         \fancyhf{}
         \fancyhead[L]{Spillover de remesas y banca en Nicaragua}
         \fancyhead[R]{\thepage}
         \renewcommand{\headrulewidth}{0.4pt}
-        \renewcommand{\abstractname}{Resumen}
 ---
 
-\vspace{0.5cm}
-\begin{center}
-\textbf{Documento de trabajo}\\
-(Versión preliminar – \today)
-\end{center}
-\vspace{0.5cm}
+
+\begin{abstract}
+
+Nicaragua recibe remesas familiares equivalentes a más del 25\% del PIB, las cuales ingresan mayoritariamente al sistema bancario como depósitos.
+  Este trabajo investiga si dichos flujos generan un efecto \textit{spillover} sobre la rentabilidad bancaria, transmitido a través de la tasa de interés pasiva y de la inversión en títulos de renta fija.
+  Mediante un modelo VAR estructural (SVAR) con descomposición recursiva de Cholesky, estimado sobre datos mensuales del período 2019‑2025, se identifican choques en el crecimiento de las remesas y sus respuestas dinámicas en los indicadores financieros del sistema bancario.
+  Los resultados muestran que un choque positivo en la tasa de crecimiento mensual de las remesas produce un incremento inmediato y estadísticamente significativo de la rentabilidad sobre activos (ROA), aunque de magnitud económicamente reducida.
+  No se detectan respuestas significativas en la tasa pasiva ponderada ni en el ratio de inversiones en títulos, lo que sugiere un canal de transmisión directo, sin mediación de las variables tradicionales del balance.
+  La descomposición de varianza indica que las remesas explican alrededor del 14\% de la variabilidad del ROA a dos años, y el test de causalidad de Granger confirma que las remesas preceden temporalmente a las variables bancarias.
+  Estos hallazgos evidencian la existencia de un \textit{spillover} real, aunque limitado en su impacto económico, en consonancia con un sistema financiero nicaragüense poco profundo y con un mercado de valores concentrado en renta fija.
+  
+\end{abstract}
+
+\vspace{0.3cm}
+\noindent\textbf{Palabras clave:} remesas, sistema bancario, Nicaragua, spillover, VAR estructural, rentabilidad bancaria
+
+
+
+
+# Introducción
+...
 
 ```{r descargar}
 #| echo: false
@@ -77,8 +129,6 @@ if(FALSE){
 }
 
 ```
-
-# Introducción
 
 El flujo de remesas...
 
