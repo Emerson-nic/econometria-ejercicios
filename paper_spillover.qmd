@@ -1,5 +1,5 @@
 ---
-title: "Efecto spillover de las remesas sobre la rentabilidad del sistema bancario nicaragüense (2019‑2025)"
+title: "Efecto spillover de las remesas sobre la rentabilidad del sistema bancario nicaragüense (2019 ‑ 2025)"
 author:
   - Emerson López
   - Khaterine Pozo
@@ -78,7 +78,6 @@ format:
         \renewcommand{\headrulewidth}{0.4pt}
 ---
 
-
 \begin{abstract}
 
 Nicaragua recibe remesas familiares equivalentes a más del 25\% del PIB, las cuales ingresan mayoritariamente al sistema bancario como depósitos.
@@ -92,12 +91,11 @@ Nicaragua recibe remesas familiares equivalentes a más del 25\% del PIB, las cu
 \end{abstract}
 
 \vspace{0.3cm}
+
 \noindent\textbf{Palabras clave:} remesas, sistema bancario, Nicaragua, spillover, VAR estructural, rentabilidad bancaria
 
-
-
-
 # Introducción
+
 ...
 
 ```{r descargar}
@@ -130,12 +128,81 @@ if(FALSE){
 
 ```
 
-El flujo de remesas...
-
-# Metodología
-
-```{r no se que poner}
+```{r cargar datos}
 #| echo: false
 #| include: false
+
+
 df <- read_csv("dataset_spillover_transformado.csv")
-``` 
+
+```
+
+Los flujos de remesas familiares se han consolidado como una variable macroeconómica de primer orden para la República de Nicaragua. Durante el período 2008–2024, estas transferencias corrientes unilaterales han experimentado una senda de crecimiento persistente, agudizada significativamente a partir del año 2021 debido a dinámicas migratorias intensivas. En la actualidad, el volumen total de remesas supera el 25% del Producto Interno Bruto (PIB) nacional, situando a Nicaragua como una de las economías con mayor dependencia de estos flujos en el istmo centroamericano. Si bien la literatura económica ha documentado ampliamente el impacto de las remesas sobre la reducción de la pobreza, el suavizamiento del consumo de los hogares y la cuenta corriente de la balanza de pagos, sus ramificaciones dinámicas sobre el sistema financiero doméstico—y específicamente sobre el desempeño operativo bancario—permanecen menos exploradas en el ámbito empírico local.
+
+A nivel teórico, un ingreso masivo de divisas bajo la forma de remesas actúa como un choque positivo de liquidez exógena para el sistema bancario comercial. Los beneficiarios finales de estos recursos interactúan con la banca formal de manera directa (mediante la constitución de depósitos de ahorro a la vista y a plazo) o indirecta (a través de la liquidez que las empresas comerciales captan del consumo de los hogares y que posteriormente canalizan hacia sus cuentas corporativas). En un marco macroeconómico convencional, esta expansión en la oferta de fondos prestables debería deprimir las tasas de interés pasivas, incentivar la colocación de créditos, o bien inducir a las instituciones financieras a rebalancear sus portafolios líquidos hacia inversiones en títulos-valores de renta fija. Cualquiera de estas rutas altera la composición estructural de los balances bancarios y repercute de manera directa sobre los márgenes financieros netos y la rentabilidad sobre activos (Return on Assets, ROA).
+
+Este estudio se propone evaluar empíricamente la existencia, magnitud y persistencia de este canal de transmisión dinámico (spillover effect) en el sistema bancario nicaragüense utilizando un enfoque de vectores autorregresivos estructurales (SVAR) con frecuencia mensual para el ciclo macroeconómico 2008–2024. Específicamente, se busca determinar si las perturbaciones en el crecimiento de las remesas familiares causan alteraciones sistemáticas sobre el ROA agregado de la industria bancaria local, aislando estos efectos de las perturbaciones domésticas mediante el uso de variables exógenas de control que capturan las crisis sociopolíticas de 2018, la pandemia del COVID-19 y el subsecuente boom migratorio de finales de 2021. La hipótesis central de la investigación postula que, si bien existe un efecto derrame positivo contemporáneo sobre la rentabilidad derivado del incremento del volumen transaccional, los canales de transmisión tradicionales de balance operan de manera débil debido a rigideces estructurales inherentes a la baja profundidad financiera del mercado nicaragüense.
+
+# Revisión de Literatura
+
+El nexo entre remesas e intermediación financiera ha cobrado un papel protagónico en el debate macroeconómico contemporáneo. Autores fundamentales como Aggarwal, Demirgüç-Kunt y Martínez Pería (2011) demuestran de manera transversal para una muestra de países en vías de desarrollo que las remesas promueven el avance del sistema financiero al incrementar de forma sistemática tanto el volumen de depósitos agregados como el crédito disponible en relación con el producto total. Desde esta perspectiva, los flujos monetarios internacionales alivian el racionamiento de crédito al capitalizar los balances de la banca comercial, reduciendo los costos friccionales de captación y permitiendo una mayor diversificación del portafolio sectorial de colocaciones.
+
+No obstante, la literatura también advierte sobre la existencia de asimetrías significativas en este proceso de transmisión, asociadas frecuentemente al fenómeno conocido como "Enfermedad Holandesa Financiera" (Financial Dutch Disease). Barajas et al. (2009) señalan que una entrada persistente y masiva de remesas no necesariamente se traduce en una mayor eficiencia de la intermediación crediticia productiva. Si el sistema financiero padece de problemas de información asimétrica o si los sectores económicos locales carecen de proyectos con retornos ajustados por riesgo atractivos, los bancos comerciales pueden optar por mantener los excedentes de liquidez en activos no riesgosos, como títulos de deuda soberana o depósitos precautorios en el exterior, inhibiendo el impacto del choque sobre los niveles de inversión agregada.
+
+Para el caso específico de Centroamérica, Cáceres y Cáceres (2017) señalan que las remesas ejercen presiones a la baja sobre las tasas de interés del mercado monetario debido al exceso de fondos captados por las instituciones bancarias de la región. Sin embargo, este comportamiento varía según la estructura competitiva de cada mercado bancario y la profundidad de sus bolsas de valores locales. En Nicaragua, las características estructurales de la banca sugieren un mercado altamente concentrado con un mercado de capitales incipiente, enfocado mayoritariamente en instrumentos de renta fija gubernamental. La aplicación de modelos autorregresivos (VAR) y de ecuaciones de causalidad estructural constituye el estándar metodológico idóneo para aislar la temporalidad de estos choques y determinar la validez empírica del spillover hacia las métricas de rentabilidad.
+
+# Datos y Metodología
+
+## Variables y Fuentes de Información
+
+La base de datos empleada para la modelación cuantitativa cuenta con una frecuencia mensual y abarca el período comprendido entre enero de 2008 y diciembre de 2024, consolidando un total de 207 observaciones cronológicas fijas. Las series de tiempo estadísticas han sido extraídas de los repositorios oficiales de la Superintendencia de Bancos y de Otras Instituciones Financieras (SIBOIF), el Banco Central de Nicaragua (BCN) y la Secretaría Ejecutiva del Consejo Monetario Centroamericano (SECMCA).
+
+El vector de variables endógenas ($Y_t$) está conformado por cuatro indicadores clave, definidos bajo criterios de consistencia económica y requerimientos de estacionariedad:
+
+1.  `dlog_remesas`: Tasa de crecimiento mensual de los flujos de remesas familiares expresados en millones de dólares americanos, calculada mediante la primera diferencia del logaritmo natural de la serie original.
+
+2.  `d_tasa_pasiva`: Primera diferencia absoluta de la tasa de interés pasiva promedio ponderada de corto plazo aplicada a las operaciones en moneda extranjera (ME) dentro del sistema financiero nacional.
+
+3.  `d_ratio_titulos`: Primera diferencia del indicador de portafolio definido como el saldo de inversiones en títulos-valores respecto al activo total del sistema bancario comercial.
+
+4.  `roa`: Rentabilidad sobre los activos totales agregados de la industria bancaria nacional, medida mensualmente como la razón matemática entre el resultado neto del ejercicio y el volumen de activos totales.
+
+Con el fin de aislar y controlar la presencia de fluctuaciones atípicas provocadas por eventos exógenos de índole institucional, política y sanitaria mundial, se incorpora al modelo una matriz de variables exógenas de control ($X_t$): la dummy de la crisis sociopolítica interna (`d2018`), la dummy de perturbación pandémica global (`dcovid`) y la dummy indicadora del quiebre estructural caracterizado por el incremento vertical en la recepción de flujos migratorios (`dboom_remesas`), activa a partir del 1 de diciembre de 2021.
+
+## Pruebas de Raíz Unitaria
+
+Para descartar regresiones espúreas y asegurar la correcta convergencia del modelo dinámico en niveles estacionarios, se evaluaron las series mediante el test de Dickey-Fuller Aumentado (ADF), cuya hipótesis nula postula la existencia de raíz unitaria ($I(1)$), y el test de Kwiatkowski-Phillips-Schmidt-Shin (KPSS), el cual asume estacionariedad ($I(0)$) en su hipótesis nula. Los resultados analíticos se detallan en la \@tbl-raices.
+
+|  |  |  |  |
+|------------------|------------------|------------------|------------------|
+| **Variable** | **P-value (ADF)** | **P-value (KPSS)** | **Condición Estructural** |
+| `roa` | 0.01 | 0.10 | Estacionaria — $I(0)$ |
+| `d_ratio_titulos` | 0.01 | 0.10 | Estacionaria — $I(0)$ |
+| `dlog_remesas` | 0.01 | 0.08 | Estacionaria — $I(0)$ |
+| `d_tasa_pasiva` | 0.01 | 0.10 | Estacionaria — $I(0)$ |
+
+: Pruebas de Raíz Unitaria
+
+: Resultados consolidados de las pruebas de raíz unitaria y estacionariedad {#tbl-raices}
+
+Los p-values informados sustentan unánimemente el rechazo de la hipótesis de raíz unitaria en la prueba ADF y la no aceptación del rechazo de estacionariedad en el test KPSS a un nivel de significancia del 5%, validando la idoneidad del sistema para su estimación en entornos autorregresivos clásicos.
+
+## Identificación Estructural y Ordenamiento de Cholesky
+
+El modelo analítico se formula matemáticamente como un Vector Autorregresivo con variables exógenas (VARX) de la siguiente forma:
+
+\$\$Y_t = c + \\sum\_{i=1}\^{p} A_i Y\_{t-i} + B X_t + \\varepsilon_t\$\$
+
+Donde $Y_t$ corresponde al vector de variables endógenas y $X_t$ representa la matriz exógena descrita. Los residuos reducidos del modelo $\varepsilon_t$ están vinculados a las perturbaciones estructurales ortogonales $u_t$ mediante la matriz de impacto contemporáneo $A_0$, de modo que $\varepsilon_t = A_0^{-1} B_0 u_t$.
+
+Para lograr la identificación exacta del modelo, se aplica una restricción recursiva basada en el esquema clásico de descomposición de Cholesky. La jerarquía económica del ordenamiento presupone una línea de transmisión que va desde la variable de naturaleza marcadamente internacional y exógena a los balances hacia las variables domésticas de respuesta operativa interna:
+
+\$\$\\text{dlog\\\_remesas} \\longrightarrow \\text{d\\\_tasa\\\_pasiva} \\longrightarrow \\text{d\\\_ratio\\\_titulos} \\longrightarrow \\text{roa}\$\$
+
+Bajo este orden estructural, los choques tecnológicos o distributivos en las remesas familiares (`dlog_remesas`) impactan de manera contemporánea inmediata a todas las variables bancarias del sistema. Seguidamente, las variaciones en las condiciones de captación monetaria (`d_tasa_pasiva`) reconfiguran las decisiones de asignación de portafolio líquido de los bancos en el mercado de valores local (`d_ratio_titulos`), afectando finalmente el rendimiento neto consolidado del período (`roa`). Las variables situadas a la derecha del ordenamiento no pueden influir contemporáneamente sobre las variables situadas a su izquierda dentro del mismo mes.
+
+# Resultados
+
+## Selección del Rezago y Diagnósticos de Estabilidad
+
+Con el propósito de fijar la profundidad temporal autorregresiva ($p$) óptima para capturar los ciclos de transmisión financiera, se estimó secuencialmente el sistema desde $p=1$ hasta $p=12$. Los criterios de información de Akaike (AIC), Schwarz (BIC) y el indicador de Máxima Verosimilitud (*Log-Likelihood*) se resumen en la \@tbl-rezagos.
