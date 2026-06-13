@@ -37,7 +37,8 @@ pacman::p_load(tidyverse,
                stringr,
                readxl,
                lubridate,
-               janitor
+               janitor,
+               usethis #para .Renviron igual que .env de python
                )
 
 # funcion para pivotar el siboif (de formato contabilidad a timeseries) ----
