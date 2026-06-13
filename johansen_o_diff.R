@@ -93,13 +93,15 @@ dataset_banano_graficos0 %>%
 #transformacion ahora si dog ----
 
 df_banano <- dataset_banano %>%
-  dplyr::mutate(
-    log_remesas = log(flujo_remesas),
-    dlog_remesas = log_remesas - lag(log_remesas, 12)
-  ) %>%
-  dplyr::select(fecha, roa, liquidez, ratio_titulos, tasa_pasiva, 
-                dlog_remesas, d2018, dcovid, imae_sa) %>%
-  tidyr::drop_na()
+#   dplyr::mutate(
+#     log_remesas = log(flujo_remesas),
+#     dlog_remesas = log_remesas - lag(log_remesas, 12)
+#   ) %>%
+   dplyr::select(fecha, roa, liquidez, ratio_titulos, tasa_pasiva, 
+                 flujo_remesas, d2018, dcovid, imae_sa ) %>% #dlog_remesas incluir si se activa log_remesas
+   tidyr::drop_na()
+
+# este transfomacion se hace mas adelante
 
 # graficos de linea por variable ----
 
@@ -109,26 +111,59 @@ dataset_banano_graficos <- df_banano %>%
 
 dataset_banano_graficos %>%
   tidyr::pivot_longer(cols = -fecha, names_to = "variable", values_to = "valor") %>%
+  dplyr::mutate(
+    variable = dplyr::case_when(
+      variable == "roa"             ~ "Rentabilidad Bancaria (ROA)",
+      variable == "liquidez"        ~ "Índice de Liquidez",
+      variable == "ratio_titulos"   ~ "Inversión en Títulos Valores",
+      variable == "tasa_pasiva"     ~ "Tasa de Interés Pasiva",
+      variable == "flujo_remesas"    ~ "Flujo de Remesas",
+      variable == "imae_sa"         ~ "IMAE (Desestacionalizado)",
+      TRUE                          ~ variable
+    )
+  ) %>%
+  dplyr::mutate(
+    variable = factor(variable, levels = c(
+      "Flujo de Remesas", 
+      "IMAE (Desestacionalizado)",
+      "Índice de Liquidez", 
+      "Inversión en Títulos Valores",
+      "Tasa de Interés Pasiva", 
+      "Rentabilidad Bancaria (ROA)"
+    ))
+  ) %>%
   ggplot2::ggplot(aes(x = fecha, y = valor)) +
   ggplot2::geom_line(color = "steelblue", linewidth = 0.6) +
   ggplot2::facet_wrap(~ variable, scales = "free_y", ncol = 2) +
-  ggplot2::labs(x = "Fecha", y = NULL) +
+  ggplot2::labs(x = NULL, y = NULL) +
   ggplot2::theme_minimal(base_size = 10) +
-  ggplot2::theme(strip.text = element_text(face = "bold"))
+  ggplot2::theme(
+    strip.text = element_text(face = "bold", size = 11),
+    panel.spacing = unit(1, "lines")
+  )
 
 #guardar plot
 ggplot2::ggsave("grafico_variables.pdf", width = 8, height = 6)
 
 # test Johansen ----
 
-variables_endogenas <- df_banano %>%
+df_banano007 <- dataset_banano %>%
+     dplyr::mutate(
+       log_remesas = log(flujo_remesas),
+       dlog_remesas = log_remesas - lag(log_remesas, 12)
+     ) %>%
+  dplyr::select(fecha, roa, liquidez, ratio_titulos, tasa_pasiva, 
+                dlog_remesas, d2018, dcovid, imae_sa ) %>% 
+  tidyr::drop_na()
+
+variables_endogenas <- df_banano007 %>%
   dplyr::select(roa, 
                 liquidez, 
                 ratio_titulos, 
                 dlog_remesas, 
                 tasa_pasiva)
 
-variables_exogenas <- df_banano %>%
+variables_exogenas <- df_banano007 %>%
   dplyr::select(d2018, 
                 dcovid)
 
@@ -174,7 +209,7 @@ test_estacionariedad <- function(data, variables,
 
 #aplicar funcion
 vars_a_testear <- c("roa", "liquidez", "ratio_titulos", "dlog_remesas", "tasa_pasiva", "imae_sa")
-resultados_pval <- test_estacionariedad(df_banano, vars_a_testear)
+resultados_pval <- test_estacionariedad(df_banano007, vars_a_testear)
 print(resultados_pval)
 
 #resultados contradictorios lo mejor es diferenciar solo roa es estacionario
@@ -268,15 +303,39 @@ df_bananox_graficos <- df_bananox %>%
 
 df_bananox_graficos %>%
   tidyr::pivot_longer(cols = -fecha, names_to = "variable", values_to = "valor") %>%
+  dplyr::mutate(
+    variable = dplyr::case_when(
+      variable == "roa"             ~ "Rentabilidad Bancaria (ROA)",
+      variable == "d_liquidez"      ~ "Var. Índice de Liquidez",
+      variable == "d_ratio_titulos" ~ "Var. Inversión en Títulos",
+      variable == "d_tasa_pasiva"   ~ "Var. Tasa de Interés Pasiva",
+      variable == "dlog_remesas"    ~ "Crecimiento de Remesas (dlog)",
+      variable == "dlog_imae"       ~ "Crecimiento IMAE (dlog)",
+      TRUE                          ~ variable
+    )
+  ) %>%
+  dplyr::mutate(
+    variable = factor(variable, levels = c(
+      "Crecimiento de Remesas (dlog)", 
+      "Crecimiento IMAE (dlog)",
+      "Var. Índice de Liquidez", 
+      "Var. Inversión en Títulos",
+      "Var. Tasa de Interés Pasiva", 
+      "Rentabilidad Bancaria (ROA)"
+    ))
+  ) %>%
   ggplot2::ggplot(aes(x = fecha, y = valor)) +
   ggplot2::geom_line(color = "steelblue", linewidth = 0.6) +
   ggplot2::facet_wrap(~ variable, scales = "free_y", ncol = 2) +
-  ggplot2::labs(x = "Fecha", y = NULL) +
+  ggplot2::labs(x = NULL, y = NULL) +
   ggplot2::theme_minimal(base_size = 10) +
-  ggplot2::theme(strip.text = element_text(face = "bold"))
+  ggplot2::theme(
+    strip.text = element_text(face = "bold", size = 11),
+    panel.spacing = unit(1, "lines")
+  )
 
 #guardar plot
-ggplot2::ggsave("grafico_variables_tranformada.pdf", width = 8, height = 6)
+ggplot2::ggsave("grafico_variables_transformadas.pdf", width = 8, height = 6)
 
 
 #identificar choques estructurales ----
