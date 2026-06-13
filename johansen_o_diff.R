@@ -55,7 +55,9 @@ pacman::p_load(tidyverse,
                ggplot2,
                tseries,
                strucchange,
-               seasonal)
+               seasonal,
+               usethis #para .Renviron igual que .env de python
+               )
 
 # importar datos si no existen en el entorno ----
 if (!exists("dataset_banano")) {

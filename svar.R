@@ -43,7 +43,9 @@ pacman::p_load(tidyverse,
                vars,
                ggplot2,
                tseries,
-               readr)
+               readr, 
+               usethis #para .Renviron igual que .env de python
+               )
 
 # importar datos si no existen en el entorno ----
 if (!exists("df_bananox")) {
