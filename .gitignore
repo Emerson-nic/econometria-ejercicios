@@ -3,6 +3,9 @@
 .Rproj.user/
 spillover.Rproj
 
+#Renviron
+.Renviron
+
 #documentos
 *.doc
 *.pdf
