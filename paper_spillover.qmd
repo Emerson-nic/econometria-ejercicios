@@ -174,7 +174,7 @@ Con el fin de aislar y controlar la presencia de fluctuaciones atípicas provoca
 Para descartar regresiones espúreas y asegurar la correcta convergencia del modelo dinámico en niveles estacionarios, se evaluaron las series mediante el test de Dickey-Fuller Aumentado (ADF), cuya hipótesis nula postula la existencia de raíz unitaria ($I(1)$), y el test de Kwiatkowski-Phillips-Schmidt-Shin (KPSS), el cual asume estacionariedad ($I(0)$) en su hipótesis nula. Los resultados analíticos se detallan en la \@tbl-raices.
 
 |  |  |  |  |
-|------------------|------------------|------------------|------------------|
+|----|----|----|----|
 | **Variable** | **P-value (ADF)** | **P-value (KPSS)** | **Condición Estructural** |
 | `roa` | 0.01 | 0.10 | Estacionaria — $I(0)$ |
 | `d_ratio_titulos` | 0.01 | 0.10 | Estacionaria — $I(0)$ |
