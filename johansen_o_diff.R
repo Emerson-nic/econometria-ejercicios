@@ -33,6 +33,14 @@ if(FALSE){
   Solo flujo_remesas (variable nominal positiva) se hace log_diff12 
   flujo_remesas se interpreta como tasa de variacion anual
   
+  Nota metodologica: 
+  el svar me da mucha autocorrelacion (recuerdese que se esta tratando con
+  tasas de crecimiento intermensual). La recomendacion para tratar mejor esto
+  es que deestacionalizar las serie con X-13ARIMA, las tasas de varianza
+  intermensual no elimina el componente estacional mensual. 
+  
+  aun asi con la correcion anterio el svar sigui con autocorrelacion
+  se decidio usar en todas las variables menos roa
   
   "
 }
@@ -46,7 +54,8 @@ pacman::p_load(tidyverse,
                vars,
                ggplot2,
                tseries,
-               strucchange)
+               strucchange,
+               seasonal)
 
 # importar datos si no existen en el entorno ----
 if (!exists("dataset_banano")) {
@@ -89,7 +98,7 @@ df_banano <- dataset_banano %>%
     dlog_remesas = log_remesas - lag(log_remesas, 12)
   ) %>%
   dplyr::select(fecha, roa, liquidez, ratio_titulos, tasa_pasiva, 
-                dlog_remesas, d2018, dcovid) %>%
+                dlog_remesas, d2018, dcovid, imae_sa) %>%
   tidyr::drop_na()
 
 # graficos de linea por variable ----
@@ -129,6 +138,7 @@ lag_select <- VARselect(variables_endogenas,
 
 p_lag <- lag_select$selection["AIC(n)"]
 
+
 johansen_test <- ca.jo(
   variables_endogenas,
   type = "trace",
@@ -163,7 +173,7 @@ test_estacionariedad <- function(data, variables,
 }
 
 #aplicar funcion
-vars_a_testear <- c("roa", "liquidez", "ratio_titulos", "dlog_remesas", "tasa_pasiva")
+vars_a_testear <- c("roa", "liquidez", "ratio_titulos", "dlog_remesas", "tasa_pasiva", "imae_sa")
 resultados_pval <- test_estacionariedad(df_banano, vars_a_testear)
 print(resultados_pval)
 
@@ -175,25 +185,75 @@ print(resultados_pval)
 
 #2diff ----
 
+#hacer la frecuencia mensual las remesas
+remesas_ts <- ts(dataset_banano$flujo_remesas, 
+                 start = c(2008, 1), 
+                 frequency = 12)
+
+titulos_ts <- ts(dataset_banano$ratio_titulos, 
+                 start = c(2008, 1), 
+                 frequency = 12)
+
+tasa_ts <- ts(dataset_banano$tasa_pasiva, 
+              start = c(2008, 1), 
+              frequency = 12)
+
+liquidez_ts <- ts(dataset_banano$liquidez, 
+                  start = c(2008, 1), 
+                  frequency = 12)
+
+# se extra la serie desestacionalizada usando X-13ARIMA
+remesas_sa <- seasonal::final(seasonal::seas(remesas_ts))
+liquidez_sa <- seasonal::final(seasonal::seas(liquidez_ts))
+titulos_sa <- seasonal::final(seasonal::seas(titulos_ts))
+tasa_sa <- seasonal::final(seasonal::seas(tasa_ts))
+#el imae ya es deeestacionalizada
+
+df_bananox00 <- dataset_banano %>%
+  dplyr:: mutate(
+    flujo_remesas_sa = as.numeric(remesas_sa), 
+    liquidez_sa      = as.numeric(liquidez_sa),
+    ratio_titulos_sa = as.numeric(titulos_sa),
+    tasa_pasiva_sa   = as.numeric(tasa_sa),
+    imae_sa = as.numeric(imae_sa)
+  )
+
+vars_a_testear00 <- c("flujo_remesas_sa", 
+                      "liquidez_sa",  
+                      "ratio_titulos_sa",
+                      "tasa_pasiva_sa",
+                      "imae_sa")
+
+resultados_pval00 <- test_estacionariedad(df_bananox00, vars_a_testear00)
+print(resultados_pval00)
+
 #nuevo dataset
 df_bananox <- dataset_banano %>%
   dplyr::mutate(
-    log_remesas = log(flujo_remesas),
-    dlog_remesas = log_remesas - lag(log_remesas, 1),
-    d_liquidez = liquidez - lag(liquidez, 1),
-    d_ratio_titulos = ratio_titulos - lag(ratio_titulos, 1),
-    d_tasa_pasiva = tasa_pasiva - lag(tasa_pasiva, 1)
+    flujo_remesas_sa = as.numeric(remesas_sa), 
+    liquidez_sa = as.numeric(liquidez_sa),
+    ratio_titulos_sa = as.numeric(titulos_sa),
+    tasa_pasiva_sa = as.numeric(tasa_sa),
+    imae_sa = as.numeric(imae_sa),
+    log_remesas_sa  = log(flujo_remesas_sa),
+    dlog_remesas = log_remesas_sa - lag(log_remesas_sa, 1),
+    log_imae_sa = log(imae_sa),
+    dlog_imae = log_imae_sa - lag(log_imae_sa, 1),
+    d_liquidez = liquidez_sa - lag(liquidez_sa, 1),
+    d_ratio_titulos = ratio_titulos_sa - lag(ratio_titulos_sa, 1),
+    d_tasa_pasiva = tasa_pasiva_sa - lag(tasa_pasiva_sa, 1)
+    
   ) %>%
-  dplyr::select(fecha, roa, d_liquidez, d_ratio_titulos, d_tasa_pasiva, 
+  dplyr::select(fecha, roa, d_liquidez, d_ratio_titulos, d_tasa_pasiva, dlog_imae,
                 dlog_remesas, d2018, dcovid) %>%
   tidyr::drop_na()
 
-print(head(df_bananox, 24))  
+print(head(df_bananox, 24))
 
 #aplicar test de estacionariedad
 
 vars_a_testear1 <- c("roa", "d_liquidez", "d_ratio_titulos", 
-                     "dlog_remesas", "d_tasa_pasiva")
+                     "dlog_remesas", "d_tasa_pasiva", "dlog_imae")
 
 resultados_pval1 <- test_estacionariedad(df_bananox, vars_a_testear1)
 print(resultados_pval1)
@@ -228,12 +288,13 @@ ggplot2::ggsave("grafico_variables_tranformada.pdf", width = 8, height = 6)
 #df_banano_esta la variable en niveles
 #dlog_remesass la diferencia de log_remesa el quiebre 
 
-bp_dlog <- breakpoints(dlog_remesas ~ 1, data = df_banano, h = 0.15, breaks = 4)
+bp_dlog <- breakpoints(dlog_remesas ~ 1, data = df_bananox, h = 0.15, breaks = 4)
 summary(bp_dlog)
 plot(bp_dlog)
+breakdates(bp_dlog)
 
 cat("se escogio 4 quiebres posibles donde el crierio BIC
-    favorecio 2 quiebres ~ -368.793")
+    favorecio 1 quiebres ~ -900.3270")
 cat("el RSS son las siglas de Residual Sum of Squares 
     (Suma de Cuadrados de los Residuos) mide la variabilidad no
     explicada pero se prefiere el bic por que penaliza la 
@@ -241,22 +302,20 @@ cat("el RSS son las siglas de Residual Sum of Squares
 
 #miremos fechas del quiebre
 
-df_banano$fecha[29]
-cat("el quiebre dice que es el 2011-05-01 es pisible que las
-    remesas se hayan recuperado por alguna crisis economica
-    por ejem 2008, lo mejor es no incluirlo")
+df_bananox$fecha[147]
+cat("el quiebre dice que es el 2020-04-01 es el boom de las remesas
+    para la serie desestacionalizada")
 
-df_banano$fecha[156]
-cat("el 2021-12-01 empezo el boom de la remesas, usable")
 
 #agregar dummy
 
-fecha_boom <- as.Date("2021-12-01")
+fecha_boom <- as.Date("2020-04-01")
 df_bananox <- df_bananox %>%
   mutate(
-    dboom_remesas = if_else(fecha >= as.Date("2021-12-01"), 1, 0),
-    mes = factor(month(fecha))
-  )
+    dboom_remesas_covid = if_else(fecha >= as.Date("2020-04-01"), 1, 0),
+    mes = factor(month(fecha)),
+  ) %>%
+  dplyr::select(-dcovid)
 
 # guardar dataset
 

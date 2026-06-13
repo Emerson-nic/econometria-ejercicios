@@ -5,14 +5,25 @@ if(FALSE){
   
   Todas las series son estacionarias (I(0)). Se estima un VAR en niveles,
   
-  modelo de 5 a 4 variables porque habia overfitting 
-  serie con autocorrelacion buscar como eliminarla
+  modelo de 5 a 4 variables porque habia overfitting, usar entre
+  d_liquidez y d_ratio_titulos los dos dicen lo mismo de un punto de 
+  vista diferente.
+  serie con autocorrelacion se elimino a corto plazo (6 meses)
   no hay normalidad en los residuos pero el no sesga los irfs
   serie homocedastica en los residuos
+  a diferencia del anterior modelo con autocorrelacion el test
+  granger es no significativo
   raices dentro del circulo
-  con este modelo existe el efecto spillover pero es insignificante para 
-  la economia, el mecanismo de transmision es directo de remesa a roa
+  con este modelo no existe el efecto spillover para 
+  la economia, el mecanismo de transmision no es directo de remesa a roa
+  como en el anterior modelo con autocorrelacion significativa
   
+  nota: sobre la autocorrelacion del modelo se uso X-13ARIMA para
+  desestacionalizar, existe una ciclicidad 
+  estructural de mediano/largo plazo en el sistema financiero nicaragüense 
+  (quizas ciclos agricolas o de politica monetaria) que el var no captura
+  
+  pero en este modelo capturo y se realiza 3 rezagos para estimar el var
   
   "
 }
@@ -45,11 +56,13 @@ if (!exists("df_bananox")) {
 #este orden es el orden Cholesky
 endog_var <- df_bananox[, c("dlog_remesas", 
                             "d_tasa_pasiva", 
-                            #"d_liquidez", 
-                            "d_ratio_titulos", 
+                            "d_liquidez", 
+                            #"d_ratio_titulos", 
                             "roa")]
 
-exog_var <- df_bananox[, c("d2018", "dcovid", "dboom_remesas")] 
+exog_var <- df_bananox[, c("d2018", "dboom_remesas_covid", "dlog_imae")] 
+
+# dummys de febrero a diciembre sesga la estimacion ----
 
 # exog_var_full <- cbind(
 #   model.matrix(~ mes - 1, data = df_bananox)[, -1],  # 11 dummies mensuales
@@ -65,7 +78,7 @@ exog_var <- df_bananox[, c("d2018", "dcovid", "dboom_remesas")]
 #esto guardo el bucle siguiente
 tabla_rezagos <- data.frame()
 
-#bucle para estimar de 1 a 12 rezagos y extraer el Log-Likelihood de cada uno
+#bucle para estimar de 1 a 12 rezagos y extraer el Log-Likelihood de cada uno ----
 for (i in 1:12) {
   #estimar el modelo temporalmente
   modelo_tmp <- VAR(endog_var, p = i, type = "const", exogen = exog_var)
@@ -99,12 +112,13 @@ print(paste("min BIC/Schwarz",
 # modelo var ----
 
 var_mod <- VAR(endog_var,
-               p = 4, 
+               p = 3, 
                type = "const", 
                exogen = exog_var)
 
 # Log-Likelihood del VAR
 cat("Log-Likelihood:", as.numeric(logLik(var_mod)), "\n")
+
 
 # summary(var_mod)
 # print(var_mod)
@@ -121,8 +135,11 @@ print("test portmanteau (autocorrelacion)")
 
 #p-value debe ser > 0.05 los residuos son ruido blanco.
 
-serial_test <- serial.test(var_mod, lags.pt = 12, type = "BG")
-print(serial_test)
+serial_test_1 <- serial.test(var_mod, lags.bg = 6, type = "BG")
+print(serial_test_1)
+
+serial_test_2 <- serial.test(var_mod, lags.bg = 12, type = "BG")
+print(serial_test_2)
 
 #test de normalidad
 norm_test <- normality.test(var_mod, multivariate.only = TRUE)
@@ -153,9 +170,10 @@ set.seed(54973997) #si sos trans llama a este numero
 irf_chol <- irf(var_mod, 
                 impulse = "dlog_remesas", 
                 #response = c("roa", "d_liquidez", "d_ratio_titulos", "d_tasa_pasiva"),
-                response = c("roa", "d_tasa_pasiva", "d_ratio_titulos"),
+                #response = c("roa", "d_tasa_pasiva", "d_ratio_titulos"),
+                response = c("roa", "d_liquidez", "d_tasa_pasiva"),
                 #response = c("roa", "d_tasa_pasiva"),
-                n.ahead = 24, 
+                n.ahead = 12, 
                 ortho = TRUE, 
                 boot = TRUE, 
                 runs = 1000)
@@ -190,8 +208,10 @@ readr::write_csv(irf_data, "irf_spillover_remesas.csv")
 
 irf_general <- irf(var_mod, 
                impulse = "dlog_remesas", 
-               response = c("roa", "d_tasa_pasiva", "d_ratio_titulos"),
-               n.ahead = 24, 
+               #response = c("roa", "d_liquidez", "d_ratio_titulos", "d_tasa_pasiva"),
+               #response = c("roa", "d_tasa_pasiva", "d_ratio_titulos"),
+               response = c("roa", "d_liquidez", "d_tasa_pasiva"),
+               n.ahead = 12, 
                ortho = FALSE, 
                boot = TRUE, 
                runs = 1000)
@@ -229,7 +249,7 @@ plot(fevd_mod)
 fevd_roa <- fevd_mod$dlog_remesas[, "roa"]
 plot(0:(length(fevd_roa)-1), fevd_roa, type = "l", xlab = "Horizonte", 
      ylab = "% varianza del ROA explicada por remesas")
-
+# 
 fevd_mod$dlog_remesa
 
 #varianza de roa

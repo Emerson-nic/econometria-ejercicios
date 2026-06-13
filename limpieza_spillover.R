@@ -21,6 +21,9 @@ if (FALSE) {
   
   En nicaragua el mercado bursatil es de renta fija por lo que 
   
+  nota metodologia: se incluye el imae para capturar autocorrelacion
+  sera tratada como variable exogena
+  
   "
 }
 
@@ -177,9 +180,42 @@ tasas_ts <- tasas_raw %>%
   ) %>%
   dplyr::select(fecha, tasa_pasiva)
 
+#imae (Serie Desestacionalizada) ----
+
+imae_raw <- readxl::read_excel("Cuadros_de_salida_IMAE.xlsx", 
+                               sheet = "IMAE", 
+                               skip = 30, 
+                               col_names = FALSE) %>%
+  setNames(c("anio", "mes", 
+             "orig_m", "orig_ia","orig_acum", "orig_pa", "_", 
+             "sa_m", "sa_ia", "sa_acum" , "sa_pa", "__", 
+             "tc_m", "tc_ia", "tc_acum" , "tc_pa", "___"))
+
+print(names(imae_raw))
+head(imae_raw, 20)
+
+#selecionar la serie desestacionalizada
+imae_ts_df <- imae_raw %>%
+  dplyr::select(sa_m) %>%
+  dplyr::mutate(
+    imae_sa = as.numeric(sa_m) / 100, #se divede 100 para que quede en decimal 
+    # y sea compatible con las otras series del vare
+    fecha = seq(from = as.Date("2006-01-01"), by = "month", length.out = dplyr::n())
+  ) %>%
+  dplyr::select(fecha, imae_sa) %>%
+  tidyr::drop_na()
+
+
+print("nombres imae:")
+print(names(imae_ts_df))
+
+print("imae")
+print(head(imae_ts_df, 12))
+
+
 #unificar ----
 
-dataset_banano <- list(siboif_completo_ts, remesas_ts, tasas_ts) %>%
+dataset_banano <- list(siboif_completo_ts, remesas_ts, tasas_ts, imae_ts_df) %>%
   purrr::reduce(dplyr::left_join, by = "fecha") %>%
   dplyr::arrange(fecha) %>%
   tidyr::drop_na() 
