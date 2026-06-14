@@ -2,6 +2,7 @@
 
 if(FALSE){
   "
+  Este archivo es el svar_liquidez
   
   Todas las series son estacionarias (I(0)). Se estima un VAR en niveles,
   
