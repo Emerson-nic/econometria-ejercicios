@@ -2,10 +2,14 @@
 .Rhistory
 .Rproj.user/
 spillover.Rproj
-paper_spillover.log
 
 #Renviron
 .Renviron
+
+#latex
+paper_spillover.log
+tabla_estacionariedad.log
+tabla_estacionariedad.synctex.gz
 
 #documentos
 *.doc
@@ -27,6 +31,10 @@ dataset_spillover_transformado.csv
 irf_spillover_remesas.csv
 irf_spillover_remesas_generales.csv
 fevd_roa_desglosado.csv
+fevd_roa_desglosado_titulos.csv
+irf_spillover_remesas_generales_titulos.csv
+irf_spillover_remesas_titulos.csv
 
 #imagenes 
-raices_var.png
+raices_var_titulos.png
+#raices_var.png
