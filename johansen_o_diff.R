@@ -2,6 +2,8 @@
 
 if(FALSE){
   "
+  Este archivo es johansen_o_diff.R
+  
   roa, liquidez son % (estos van de 0 a 1), por cada 100 pesos de activo 
   que se tiene el sistema bancario,cuantos pesos de utilidad neta genero
   en el mes. Ejemplo: roa = 0.0014 significa que por cada 100 pesos 
