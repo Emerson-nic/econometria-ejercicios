@@ -1,0 +1,25 @@
+% archivo: tabla_diagnostico_svar.tex
+\begin{table}[htbp]
+  \centering
+  \begin{threeparttable}
+    \caption{Diagnóstico de residuos y especificación de los modelos SVAR(3)}
+    \label{tab:diagnostico}
+    \begin{tabular}{l c c c c}
+      \toprule
+      & \multicolumn{2}{c}{\textbf{Canal de Liquidez}} & \multicolumn{2}{c}{\textbf{Canal de Títulos}} \\
+      \cmidrule(lr){2-3} \cmidrule(lr){4-5}
+      Test & Estadístico & p-valor & Estadístico & p-valor \\
+      \midrule
+      Autocorrelación LM(6)  & 113.21 & 0.111 & 115.67 & 0.084 \\
+      Autocorrelación LM(12) & 322.92 & $<0.001$ & 341.67 & $<0.001$ \\
+      Normalidad (JB multiv.) & 522.42 & $<0.001$ & 737.05 & $<0.001$ \\
+      Heterocedasticidad ARCH(12) & 1235.2 & 0.234 & 1189.4 & 0.581 \\
+      Causalidad de Granger (Remesas) & 0.504 & 0.872 & 0.313 & 0.971 \\
+      \bottomrule
+    \end{tabular}
+    \begin{tablenotes}[para, flushleft]
+      \small
+      \item \textit{Nota:} LM es el test de Breusch-Godfrey; JB es el test de Jarque-Bera multivariante; ARCH(12) es el test de efectos ARCH multivariante hasta 12 rezagos. La hipótesis nula de cada test es: no autocorrelación, normalidad, homocedasticidad y no causalidad de Granger, respectivamente. La normalidad es rechazada en ambos modelos, lo cual es frecuente en series financieras y no invalida la inferencia de las IRF estimadas por \textit{bootstrap}. La estabilidad estructural se verificó mediante CUSUM, manteniéndose todos los estadísticos dentro de las bandas al 95\%. Todos los modelos incluyen 3 rezagos y las variables exógenas $D_t^{2018}$, $D_t^{boom}$ y $g_t^y$.
+    \end{tablenotes}
+  \end{threeparttable}
+\end{table}

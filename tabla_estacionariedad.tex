@@ -1,0 +1,23 @@
+% archivo: tabla_estacionariedad.tex
+\begin{table}[htbp]
+  \centering
+  \begin{threeparttable}
+    \caption{Contrastes de raíz unitaria sobre las series transformadas}
+    \label{tab:estacionariedad}
+    \begin{tabular}{l c c}
+      \toprule
+      Variable & ADF (p‑valor) & KPSS (p‑valor) \\
+      \midrule
+      ROA$_t$                          & 0.01 & 0.10 \\
+      $\Delta L_t$ (Liquidez)          & 0.01 & 0.10 \\
+      $\Delta T_t$ (Títulos)           & 0.01 & 0.10 \\
+      $g^r_t$ (Remesas)                & 0.01 & 0.01 \\
+      $\Delta i^p_t$ (Tasa pasiva)     & 0.01 & 0.10 \\
+      $g^y_t$ (IMAE)                   & 0.01 & 0.10 \\
+      \bottomrule
+    \end{tabular}
+    \begin{tablenotes}
+      \item Nota: ADF: H0 = raíz unitaria; KPSS: H0 = estacionariedad. Valores $<0.05$ rechazan H0 al 5\%. Todas las series fueron desestacionalizadas (X‑13ARIMA‑SEATS) y diferenciadas. $g^r_t$ muestra evidencia mixta en KPSS, común en tasas financieras de alta frecuencia; se asume estacionariedad avalada por ADF.
+    \end{tablenotes}
+  \end{threeparttable}
+\end{table}
