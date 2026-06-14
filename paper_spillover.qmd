@@ -1,5 +1,5 @@
 ---
-title: "Efecto Spillover de las Remesas sobre la Rentabilidad del Sistema Bancario Nicaragüense (2019 -‑ 2025)"
+title: "Efecto Spillover de las Remesas sobre la Rentabilidad del Sistema Bancario Nicaragüense (2019 ‑ 2025)"
 author:
   - Emerson López
   - Khaterine Pozo
@@ -180,6 +180,8 @@ $$y_t^T = (g_t^r, \Delta i_t^p, \Delta T_t, ROA_t)'$$
 El ordenamiento de Cholesky supone que un choque en la tasa de crecimiento de las remesas ($g_t^r$) afecta contemporáneamente a la variación de la tasa pasiva ($\Delta i_t^p$), pero no a la inversa; la tasa pasiva incide de forma inmediata sobre la liquidez ($\Delta L_t$) o los títulos ($\Delta T_t$), y todas las variables anteriores impactan al ROA dentro del mismo mes, mientras que el ROA no tiene efectos contemporáneos sobre ellas. Esta estructura refleja la jerarquía de transmisión esperada en una economía pequeña y dolarizada donde las remesas constituyen un flujo exógeno predominante \parencite{caceres2017, adam2020}.
 
 La forma reducida del VAR se estima con $p=3$ rezagos. Aunque los criterios de información AIC siguire el maximo de rezago establecido ($p=12$) y BIC sugiere un solo rezago, la especificación con $p=3$ se adopta para eliminar la autocorrelación residual de corto plazo: el test de Breusch‑Godfrey (LM) con 6 rezagos no rechaza la hipótesis nula de no autocorrelación (modelo Liquidez: $p=0.111$; modelo Títulos: $p=0.084$). La estabilidad dinámica se confirma al estar todas las raíces inversas del polinomio característico dentro del círculo unitario (Figura~\ref{fig:raices}). Los residuos son homocedásticos según el test ARCH multivariante (Liquidez: $p=0.234$; Títulos: $p=0.581$). Aunque la hipótesis de normalidad multivariante es rechazada (test de Jarque‑Bera), la literatura demuestra que este resultado no sesga las funciones de impulso‑respuesta estimadas por bootstrap \parencite{lutkepohl2005}, por lo que la inferencia dinámica sigue siendo válida.
+
+\input{tabla_diagnostico_svar.tex}
 
 \begin{figure}[H]
 \centering
