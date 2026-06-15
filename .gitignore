@@ -7,6 +7,8 @@ spillover.Rproj
 .Renviron
 
 #latex
+tabla_estacionariedad.tex
+tabla_diagnostico_svar.tex
 paper_spillover.log
 tabla_estacionariedad.log
 tabla_estacionariedad.synctex.gz
