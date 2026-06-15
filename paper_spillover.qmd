@@ -106,20 +106,22 @@ if(FALSE){
 ```
 
 \begin{abstract}
-Nicaragua recibe remesas familiares equivalentes a más del 25\% del PIB, flujos que ingresan mayoritariamente al sistema bancario comercial. Este trabajo investiga si dichas transferencias generan un efecto \textit{spillover} sobre la rentabilidad bancaria, transmitido a través del canal de liquidez estructural y del costo de fondeo pasivo, condicionando las estimaciones al ciclo económico real. Mediante un modelo VAR estructural (SVAR) con descomposición recursiva de Cholesky, estimado con datos mensuales del período 2019--2025, se identifican los choques en la tasa de crecimiento de las remesas y sus respuestas dinámicas en las variables macrofinancieras \parencite{blanchard1989, sims1980}. Contrario a la intuición contable tradicional, los resultados empíricos demuestran que un choque positivo en las remesas no produce un impacto estadísticamente significativo sobre la rentabilidad sobre activos (ROA) en ningún horizonte temporal. Asimismo, se constata que el exceso de liquidez exógena es absorbido por el sistema sin alterar de forma determinante los márgenes de intermediación ni la inversión en títulos. La descomposición de varianza confirma que las remesas explican menos del 0.3\% de la variabilidad del error de pronóstico del ROA, consolidando la hipótesis del banco perezoso (\textit{lazy bank}): en un mercado de escasa profundidad, el choque de liquidez permanece inactivo en el balance, limitando el efecto derrame sobre el desempeño operativo bancario nicaragüense.
+Nicaragua recibe remesas familiares superiores al 25\% del PIB, flujos que ingresan mayoritariamente al sistema bancario. Este artículo evalúa empíricamente si dichas transferencias generan un efecto \textit{spillover} sobre la rentabilidad bancaria a través del canal de liquidez y del costo de fondeo. Se estiman dos modelos VAR estructurales (SVAR) con datos mensuales del período 2019--2025, identificando choques en la tasa de crecimiento de las remesas mediante una descomposición recursiva de Cholesky. Los resultados muestran que un choque positivo en las remesas no produce un impacto estadísticamente significativo sobre la rentabilidad sobre activos (ROA) en ningún horizonte temporal. La descomposición de varianza revela que las remesas explican menos del 0.3\% de la variabilidad del error de pronóstico del ROA, mientras que la liquidez y la inversión en títulos absorben pasivamente el exceso de fondos sin traducirlo en mejoras operativas. Estos hallazgos respaldan la hipótesis del banco perezoso (\textit{lazy bank}) y sugieren que, en mercados financieros de escasa profundidad como el nicaragüense, el choque de liquidez exógena no dinamiza la rentabilidad bancaria.
 \end{abstract}
 
 \vspace{0.3cm}
-\noindent\textbf{Palabras clave:} Remesas, Sistema Bancario, Nicaragua, Spillover, VAR Estructural, Rentabilidad Bancaria, Índice de Liquidez.
+\noindent\textbf{Palabras clave:} Remesas, Rentabilidad Bancaria, SVAR, Nicaragua, \textit{Lazy Bank}, Intermediación Financiera.
+<!-- \noindent\textbf{Códigos JEL:} C32, F24, G21, O16. -->
+
 
 \newpage
 
 \section{Introducción}
-Los flujos de remesas familiares se han consolidado como una variable macroeconómica de primer orden para la República de Nicaragua. Durante el período de estudio 2019--2025, estas transferencias corrientes unilaterales han experimentado una senda de crecimiento acelerado, agudizada significativamente a partir del año 2021. En la actualidad, el volumen total de remesas supera el 25\% del Producto Interno Bruto (PIB) nacional, situando a Nicaragua como una de las economías con mayor dependencia de estos flujos en el istmo centroamericano \parencite{gammage2006}. Si bien la literatura económica ha documentado ampliamente el impacto de las remesas sobre la reducción de la pobreza, el suavizamiento del consumo de los hogares y la balanza de pagos \parencite{giuliano2009}, sus ramificaciones dinámicas sobre el sistema financiero doméstico —y específicamente sobre el desempeño operativo bancario— permanecen menos exploradas en el ámbito empírico local \parencite{aggarwal2011}.
+Los flujos de remesas familiares se han consolidado como una variable macroeconómica de primer orden para la República de Nicaragua. Durante el período de estudio 2019 - 2025, estas transferencias corrientes unilaterales han experimentado una senda de crecimiento acelerado, agudizada significativamente a partir del año 2021. En la actualidad, el volumen total de remesas supera el 25\% del Producto Interno Bruto (PIB) nacional, situando a Nicaragua como una de las economías con mayor dependencia de estos flujos en el istmo centroamericano \parencite{gammage2006}. Si bien la literatura económica ha documentado ampliamente el impacto de las remesas sobre la reducción de la pobreza, el suavizamiento del consumo de los hogares y la balanza de pagos \parencite{giuliano2009}, sus ramificaciones dinámicas sobre el sistema financiero doméstico —y específicamente sobre el desempeño operativo bancario— permanecen menos exploradas en el ámbito empírico local \parencite{aggarwal2011}.
 
 A nivel teórico, un ingreso masivo de divisas bajo la forma de remesas actúa como un choque positivo de liquidez exógena para el sistema bancario comercial \parencite{orozco2012}. Los beneficiarios finales de estos recursos interactúan con la banca formal de manera directa (mediante la constitución de depósitos de ahorro a la vista) o indirecta (a través de la liquidez que las empresas comerciales captan del consumo de los hogares y que posteriormente canalizan hacia sus cuentas corporativas) \parencite{beck2007}. En un marco macroeconómico convencional, esta expansión en la oferta de fondos disponibles altera el índice de liquidez sistémica, influye sobre las tasas de interés pasivas y condiciona la rentabilidad final del balance, todo ello mientras interactúa con el ciclo económico general \parencite{athanasoglou2008}.
 
-Este estudio se propone evaluar empíricamente la existencia, magnitud y persistencia de este canal de transmisión dinámico (\textit{spillover effect}) en el sistema bancario nicaragüense utilizando un enfoque de vectores autorregresivos estructurales (SVAR) con frecuencia mensual para el ciclo macrofinanciero reciente (2019--2025). Específicamente, se busca determinar si las perturbaciones en el crecimiento de las remesas familiares causan alteraciones sistemáticas sobre el ROA agregado de la industria bancaria local, aislando estos efectos mediante el uso de variables exógenas de control que capturan choques de quiebre estructural y la perturbación sanitaria global del COVID-19 \parencite{beck2020}. La hipótesis central de la investigación postula que, dado un entorno de rigideces estructurales inherentes a la baja profundidad financiera del mercado nicaragüense, los canales de transmisión tradicionales operan de manera débil; obligando a las instituciones a acumular la liquidez exógena en sus balances sin que esto se traduzca en rendimientos operativos extraordinarios \parencite{barajas2009}.
+Este estudio se propone evaluar empíricamente la existencia, magnitud y persistencia de este canal de transmisión dinámico (\textit{spillover effect}) en el sistema bancario nicaragüense utilizando un enfoque de vectores autorregresivos estructurales (SVAR) con frecuencia mensual para el ciclo macrofinanciero reciente (2019 - 2025). Específicamente, se busca determinar si las perturbaciones en el crecimiento de las remesas familiares causan alteraciones sistemáticas sobre el ROA agregado de la industria bancaria local, aislando estos efectos mediante el uso de variables exógenas de control que capturan choques de quiebre estructural y la perturbación sanitaria global del COVID-19 \parencite{beck2020}. La hipótesis central de la investigación postula que, dado un entorno de rigideces estructurales inherentes a la baja profundidad financiera del mercado nicaragüense, los canales de transmisión tradicionales operan de manera débil; obligando a las instituciones a acumular la liquidez exógena en sus balances sin que esto se traduzca en rendimientos operativos extraordinarios \parencite{barajas2009}.
 
 \section{Revisión de Literatura}
 El nexo entre remesas e intermediación financiera ha cobrado un papel protagónico en el debate macroeconómico contemporáneo \parencite{giuliano2009}. Autores fundamentales como \textcite{aggarwal2011} demuestran de manera transversal, para una muestra amplia de países en vías de desarrollo, que las remesas promueven la profundización del sistema financiero al incrementar de forma sistemática el volumen de depósitos bancarios agregados. Desde esta perspectiva, los flujos monetarios internacionales alivian el racionamiento de liquidez de las instituciones financieras, reduciendo los costos friccionales de captación y permitiendo, en teoría, una mayor expansión del crédito productivo \parencite{chowdhury2011}.
@@ -133,7 +135,8 @@ Para el caso específico de la región centroamericana, \textcite{caceres2017} d
 \section{Metodología y Datos}
 
 \subsection{Datos y transformaciones}
-Se emplean series mensuales del sistema bancario nicaragüense que cubren el período 2008(1)–2025(12). Las variables originales provienen de fuentes oficiales: el flujo nominal de remesas familiares y el Índice Mensual de Actividad Económica (IMAE) fueron obtenidos del Banco Central de Nicaragua (BCN); la tasa de interés pasiva ponderada proviene del Sistema de Cuentas Macroeconómicas del Consejo Monetario Centroamericano (SECMCA); y la rentabilidad sobre activos ($ROA_t$), el índice de liquidez y el ratio de inversión en títulos fueron proporcionados por la Superintendencia de Bancos y Otras Instituciones Financieras de Nicaragua (SIBOIF). Todas las series monetarias se expresan en millones de dólares.
+
+Se emplean series mensuales del sistema bancario nicaragüense que cubren el período 2008(1) - 2025(12) para garantizar un historial suficiente en los procedimientos de desestacionalización. Sin embargo, la estimación de los modelos SVAR se restringe al subperíodo 2019(1)--2025(12), decisión motivada por la presencia de quiebres estructurales asociados a la crisis sociopolítica de 2018 y al \textit{boom} de remesas posterior a la pandemia de COVID-19 (véase la sección \ref{subsec:estacionariedad}). Las variables originales provienen de fuentes oficiales: el flujo nominal de remesas familiares y el Índice Mensual de Actividad Económica (IMAE) fueron obtenidos del Banco Central de Nicaragua (BCN); la tasa de interés pasiva ponderada proviene del Sistema de Cuentas Macroeconómicas del Consejo Monetario Centroamericano (SECMCA); y la rentabilidad sobre activos ($ROA_t$), el índice de liquidez y el ratio de inversión en títulos fueron proporcionados por la Superintendencia de Bancos y Otras Instituciones Financieras de Nicaragua (SIBOIF). Todas las series monetarias se expresan en millones de dólares.
 
 Dado que las variables de rentabilidad, liquidez, títulos y tasa de interés son razones financieras o porcentajes —y por tanto no admiten transformaciones logarítmicas—, se les aplica únicamente un suavizado estacional mediante el procedimiento X-13ARIMA-SEATS \parencite{findley1998}. Las series desestacionalizadas se denotan con el superíndice $^{sa}$. Para el flujo de remesas, se toma el logaritmo natural de la serie desestacionalizada y se calcula la primera diferencia intermensual para obtener la tasa de crecimiento continuo:
 $$g_t^r = \Delta \ln(remesas_t^{sa})$$
@@ -141,19 +144,22 @@ De igual modo, el IMAE desestacionalizado se transforma en $g_t^y = \Delta \ln(I
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=\textwidth]{grafico_variables.pdf}
-\caption{Series originales (2008--2025)}
+\includegraphics[width=0.8\textwidth]{grafico_variables.pdf}
+\caption{Series originales (2008--2025). \textit{Fuente:} Elaboración propia con datos de BCN, SIBOIF y SECMCA.}
 \label{fig:series}
 \end{figure}
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=\textwidth]{grafico_variables_transformadas.pdf}
-\caption{Series transformadas y estacionarias}
+\includegraphics[width=0.8\textwidth]{grafico_variables_transformadas.pdf}
+\caption{Series transformadas y estacionarias. \textit{Fuente:} Elaboración propia con datos de BCN, SIBOIF y SECMCA.}
 \label{fig:series_trans}
 \end{figure}
 
 \subsection{Análisis de estacionariedad y especificación del modelo}
+
+\label{subsec:estacionariedad}
+
 La estacionariedad de las variables transformadas se verifica mediante los contrastes de Dickey-Fuller Aumentado (ADF) y KPSS. La Tabla~\ref{tab:estacionariedad} confirma que todas las series consideradas son integradas de orden cero, $I(0)$. El ADF rechaza la hipótesis nula de raíz unitaria al 1\% en todos los casos, mientras que el KPSS no rechaza la estacionariedad al nivel del 5\% para la mayoría de las variables. La serie $g_t^r$ presenta evidencia mixta en el KPSS ($p < 0.01$), lo que es común en tasas de crecimiento financieras de alta frecuencia; no obstante, se procede bajo el supuesto de estacionariedad avalado por la potencia del ADF y la naturaleza estructural del filtrado X-13ARIMA \parencite{findley1998}.
 
 \begin{table}[H]
@@ -176,7 +182,7 @@ $g_t^y$ (IMAE) & 0.01 & 0.10 \\
 \begin{tablenotes}[para, flushleft]
 \small
 \item \textit{Nota:} ADF: H0 = raíz unitaria; KPSS: H0 = estacionariedad. Valores $< 0.05$ rechazan H0 al 5\%. Todas las series fueron desestacionalizadas (X-13ARIMA-SEATS) y diferenciadas. $g_t^r$ muestra evidencia mixta en KPSS, común en tasas financieras de alta frecuencia; se asume estacionariedad avalada por ADF.
-\item \textit{Fuente:} Elaboración propia a partir de estimaciones del modelo SVAR y datos de BCN, SIBOIF y SECMCA.
+\item \textit{Fuente:} Elaboración propia a partir de datos de BCN, SIBOIF y SECMCA.
 \end{tablenotes}
 \end{threeparttable}
 \end{table}
@@ -184,18 +190,25 @@ $g_t^y$ (IMAE) & 0.01 & 0.10 \\
 Un aspecto crucial es la presencia de quiebres estructurales en la serie de remesas. Mediante el test de Bai y Perron \parencite{bai2003} se identifica un único cambio estructural significativo en abril de 2020, coincidiendo con la irrupción de la pandemia de COVID-19 y el posterior incremento extraordinario de los flujos de remesas hacia Nicaragua \parencite{beck2020}. Para capturar este efecto, se construye una variable indicadora que toma el valor 1 a partir de 2020(4) y 0 en meses anteriores, denotada $D_t^{boom}$. Asimismo, se incluyen una variable indicadora para la crisis sociopolítica de 2018 ($D_t^{2018}$) y el crecimiento del IMAE ($g_t^y$) como control exógeno del ciclo económico real. Estas tres variables conforman el bloque exógeno en ambos modelos SVAR.
 
 \subsection{Modelado}
+
 Siguiendo la lógica del mecanismo de transmisión $\text{remesas} \rightarrow \text{tasa pasiva} \rightarrow \text{liquidez/títulos} \rightarrow \text{ROA}$, se estiman dos modelos SVAR separados que comparten la estructura de identificación recursiva de Cholesky \parencite{blanchard1989, sims1980}. El primer modelo, denominado \textbf{Canal de Liquidez}, incluye las variables endógenas en el siguiente orden:
 $$y_t^L = (g_t^r, \Delta i_t^p, \Delta L_t, ROA_t)'$$
 El segundo modelo, \textbf{Canal de Títulos}, reemplaza la liquidez por la variación en el ratio de inversión en títulos:
 $$y_t^T = (g_t^r, \Delta i_t^p, \Delta T_t, ROA_t)'$$
 El ordenamiento de Cholesky supone que un choque en la tasa de crecimiento de las remesas ($g_t^r$) afecta contemporáneamente a la variación de la tasa pasiva ($\Delta i_t^p$), pero no a la inversa; la tasa pasiva incide de forma inmediata sobre la liquidez ($\Delta L_t$) o los títulos ($\Delta T_t$), y todas las variables anteriores impactan al ROA dentro del mismo mes, mientras que el ROA no tiene efectos contemporáneos sobre ellas. Esta estructura refleja la jerarquía de transmisión esperada en una economía pequeña y dolarizada donde las remesas constituyen un flujo exógeno predominante \parencite{caceres2017, adam2020}.
 
-La forma reducida de los vectores autorregresivos se estima fijando una profundidad temporal de $p=3$ rezagos. La elección de este rezago se basa en garantizar la ausencia de autocorrelación residual de corto plazo en los sistemas, priorizando la idoneidad dinámica sobre el criterio de información bayesiano (BIC) que sugería un solo rezago. Previo al cómputo de las funciones de impulso-respuesta, la adecuación de ambos modelos se somete a una batería rigurosa de pruebas de diagnóstico: estabilidad matemática de las raíces, test de Breusch-Godfrey para autocorrelación, test ARCH multivariante para homocedasticidad, test de Jarque-Bera para normalidad y estadísticos CUSUM para descartar quiebres estructurales en los parámetros. Los resultados empíricos de esta validación se detallan en la Sección \ref{sec:resultados}.
+La adopción del ordenamiento recursivo de Cholesky se fundamenta en la estructura del sistema bancario nicaragüense y en la naturaleza de los flujos de remesas. Nicaragua es una economía pequeña, altamente dolarizada y con un régimen cambiario de \textit{crawling peg} predeterminado, cuya tasa de deslizamiento se redujo gradualmente durante el ciclo reciente hasta fijarse en 0\,\% a partir del 1 de enero de 2024, operando en la práctica como una paridad fija administrada. En este contexto, las remesas constituyen un choque de oferta de liquidez eminentemente exógeno: su volumen está determinado por las condiciones macroeconómicas en los países de origen —principalmente Estados Unidos y Costa Rica— y no por variables domésticas contemporáneas ni fluctuaciones cambiarias internas \parencite{caceres2017}. Una vez que estos fondos ingresan al sistema como depósitos, la tasa de interés pasiva actúa como la variable de ajuste más inmediata, antes de que las cantidades (liquidez o títulos) reflejen plenamente el choque. Finalmente, el ROA se ubica al final de la cadena de transmisión, incorporando toda la información disponible dentro del mes sin incidir contemporáneamente sobre las demás variables. Esta estructura es congruente con la hipótesis del banco perezoso (\textit{lazy bank}) y con la práctica estándar en estudios de transmisión macrofinanciera para economías en desarrollo \parencite{adam2020, anzoategui2014}.
+
+No obstante, se reconoce que la identificación recursiva impone supuestos fuertes sobre la ausencia de efectos contemporáneos en determinadas direcciones. Para mitigar esta limitación, se reportan también funciones de impulso-respuesta generalizadas (GIRF), que son invariantes al ordenamiento, y se verifica que los resultados cualitativos se mantienen. Extensiones futuras podrían considerar restricciones de signo o modelos FAVAR que incorporen un conjunto más amplio de variables.
+
+La elección de $p=3$ rezagos responde a la necesidad de capturar la dinámica trimestral de los estados financieros bancarios y eliminar la autocorrelación residual de corto plazo. El criterio BIC sugirió $p=1$, pero ese modelo exhibía patrones sistemáticos en los residuos que violaban el supuesto de ruido blanco. Dado que el sobredimensionamiento moderado del VAR no compromete la consistencia de las IRF bajo el remuestreo \textit{bootstrap}, se priorizó la adecuación dinámica sobre la parsimonia \parencite{lutkepohl2005}.
+
+Previo al cómputo de las funciones de impulso-respuesta, la adecuación de ambos modelos se somete a pruebas de diagnóstico: estabilidad matemática de las raíces, test de Breusch-Godfrey para autocorrelación, test ARCH multivariante para homocedasticidad, test de Jarque-Bera para normalidad y estadísticos CUSUM para descartar quiebres estructurales en los parámetros. Los resultados empíricos de esta validación se detallan en la Sección \ref{sec:resultados}.
 
 \subsection{Funciones de impulso-respuesta y descomposición de varianza}
 Para cuantificar el efecto \textit{spillover} dinámico, se computan las funciones de impulso-respuesta (IRF) ortogonales a un choque unitario en $g_t^r$, usando el ordenamiento de Cholesky descrito y un horizonte de 12 meses. Las bandas de confianza al 95\% se construyen mediante \textit{bootstrap} con 1,000 réplicas. Adicionalmente, se calculan IRF generalizadas \parencite{pesaran1998} para verificar que los resultados no dependen del orden de las variables.
 
-La contribución relativa de cada choque estructural a la variabilidad del error de predicción del ROA se analiza a través de la descomposición de varianza (FEVD) en los mismos horizontes. 
+La contribución relativa de cada choque estructural a la variabilidad del error de predicción del ROA se analiza a través de la descomposición de varianza (FEVD) en los mismos horizontes.
 
 \subsection{Software y Replicabilidad}
 Toda la programación, manipulación de datos y estimación econométrica se realizó en el entorno de desarrollo integrado RStudio \parencite{RStudio2026}, utilizando el lenguaje estadístico R \parencite{R2024}. Para la limpieza de datos, extracción de archivos y estructuración de fechas se emplearon los paquetes del ecosistema \texttt{tidyverse} \parencite{tidyverse2019}, \texttt{readxl} \parencite{readxl2023}, \texttt{janitor} \parencite{janitor2023} y \texttt{lubridate} \parencite{lubridate2011}. El análisis de series de tiempo, las pruebas de raíz unitaria y la estimación de los modelos SVAR se llevaron a cabo con \texttt{urca} \parencite{urca2008}, \texttt{tseries} \parencite{tseries2022}, \texttt{vars} \parencite{pfaff2008}, \texttt{strucchange} \parencite{zeileis2002} y \texttt{seasonal} \parencite{sax2023}. Finalmente, las visualizaciones se generaron con \texttt{ggplot2} \parencite{ggplot2_2016} y la gestión del entorno de variables se manejó con \texttt{usethis} \parencite{usethis2024}. Con el objetivo de garantizar la transparencia metodológica y la reproducibilidad científica, los códigos de estimación, los scripts de procesamiento y la base de datos mensual construida se encuentran disponibles de acceso público en el repositorio: \url{https://github.com/Emerson-nic/econometria-spillover}.
@@ -203,8 +216,13 @@ Toda la programación, manipulación de datos y estimación econométrica se rea
 \section{Resultados}
 \label{sec:resultados}
 
+\subsection{Análisis de robustez}
+
+Con el fin de verificar la estabilidad de los resultados, se realizaron tres comprobaciones empíricas adicionales. En primer lugar, se estimaron ambos modelos restringiendo la muestra al subperíodo pre-COVID (2019(1)--2020(3)). Esta partición temporal se justifica estadísticamente mediante el test de Bai y Perron sobre la serie de remesas, cuyo criterio de información bayesiano (BIC) identificó un único quiebre estructural óptimo ($m=1$) asociado al inicio de la pandemia y al consecuente \textit{boom} de transferencias. Aunque la potencia estadística se reduce naturalmente por el tamaño muestral, las conclusiones cualitativas se mantienen inalteradas. En segundo lugar, se procedió a reestimar los modelos aplicando un ordenamiento de Cholesky alternativo que ubica al ROA antes de las variables de cantidad (liquidez y títulos), sin observar cambios sustantivos en la dinámica. Finalmente, se calcularon las funciones de impulso-respuesta generalizadas (GIRF) de \textcite{pesaran1998}, las cuales tienen la ventaja analítica de ser invariantes al ordenamiento ortogonal de las variables en el sistema. Los gráficos resultantes de este último ejercicio, presentados en el \textbf{Anexo A}, confirman la ausencia de respuestas estadísticamente significativas. En conjunto, estas comprobaciones reafirman que la nula significancia del efecto \textit{spillover} es un resultado robusto a distintas especificaciones empíricas.
+
 \subsection{Validación de los modelos VAR}
-Antes de analizar los efectos de transmisión, se verifica que ambos modelos SVAR(3) —Canal de Liquidez y Canal de Títulos— satisfagan las condiciones teóricas exigidas. Todas las raíces inversas del polinomio característico se sitúan dentro del círculo unitario (Figura~\ref{fig:raices}), lo que garantiza que el sistema es estable y que las funciones de impulso-respuesta convergen a cero. La prueba empírica de fluctuación CUSUM no detecta quiebres estructurales adicionales en los parámetros (Figura~\ref{fig:cusum}). 
+
+Antes de analizar los efectos de transmisión, se verifica que ambos modelos SVAR(3) —Canal de Liquidez y Canal de Títulos— satisfagan las condiciones teóricas exigidas. Todas las raíces inversas del polinomio característico se sitúan dentro del círculo unitario (Figura~\ref{fig:raices}), lo que garantiza que el sistema es estable y que las funciones de impulso-respuesta convergen a cero. La prueba empírica de fluctuación CUSUM no detecta quiebres estructurales adicionales en los parámetros (Figura~\ref{fig:cusum}).
 
 En cuanto a los residuos, estos resultan homocedásticos según el test ARCH multivariante (Liquidez: $p=0.234$; Títulos: $p=0.581$) y no presentan autocorrelación de orden 6 (Breusch-Godfrey LM: Liquidez $p=0.111$, Títulos $p=0.084$), mitigando los problemas de sesgo de estimación. Aunque la hipótesis de normalidad multivariante es rechazada (Jarque-Bera $p<0.001$), este es un hallazgo habitual en series financieras de alta frecuencia y no afecta la validez asintótica de las IRF estimadas por remuestreo \textit{bootstrap} \parencite{lutkepohl2005}. La Tabla~\ref{tab:diagnostico} consolida el diagnóstico.
 
@@ -216,7 +234,7 @@ En cuanto a los residuos, estos resultan homocedásticos según el test ARCH mul
 \begin{tabular}{l c c}
 \toprule
 & \textbf{Canal de Liquidez} & \textbf{Canal de Títulos} \\
-\cmidrule(lr){2-2} \cmidrule(lr){3-3} 
+\cmidrule(lr){2-2} \cmidrule(lr){3-3}
 Test & p-valor & p-valor \\
 \midrule
 Autocorrelación LM(6)  & 0.111 & 0.084 \\
@@ -237,14 +255,14 @@ Causalidad Granger (Remesas) & 0.872 & 0.971 \\
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.55\textwidth]{raices_var.png}
-\caption{Estabilidad: raíces inversas del VAR(3) – Modelo de Liquidez. \textit{Fuente:} Elaboración propia a partir de estimaciones del modelo SVAR y datos de BCN, SIBOIF y SECMCA.}
+\caption{Raíces inversas del VAR(3) – Modelo de Liquidez. \textit{Fuente:} Elaboración propia a partir de estimaciones del modelo SVAR y datos de BCN, SIBOIF y SECMCA.}
 \label{fig:raices}
 \end{figure}
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.8\textwidth]{cusm.pdf}
-\caption{Estabilidad estructural: CUSUM sobre los residuos del modelo. \textit{Fuente:} Elaboración propia a partir de estimaciones del modelo SVAR y datos de BCN, SIBOIF y SECMCA.}
+\caption{CUSUM sobre los residuos del modelo. \textit{Fuente:} Elaboración propia a partir de estimaciones del modelo SVAR y datos de BCN, SIBOIF y SECMCA.}
 \label{fig:cusum}
 \end{figure}
 
@@ -281,7 +299,7 @@ Horizonte (meses) & $g_t^r$ (Remesas) & $\Delta L_t$ (Liquidez) & $\Delta i_t^p$
 \end{tabular}
 \begin{tablenotes}[para, flushleft]
 \small
-\item \textit{Nota:} Se muestran los valores para horizontes seleccionados. La suma de las contribuciones puede diferir del 100\% por redondeo.
+\item \textit{Nota:} La suma de las contribuciones puede diferir del 100\% por redondeo.
 \item \textit{Fuente:} Elaboración propia a partir de estimaciones del modelo SVAR y datos de BCN, SIBOIF y SECMCA.
 \end{tablenotes}
 \end{threeparttable}
@@ -295,12 +313,13 @@ Horizonte (meses) & $g_t^r$ (Remesas) & $\Delta L_t$ (Liquidez) & $\Delta i_t^p$
 \end{figure}
 
 \subsubsection{Canal de Títulos}
+
 El modelo alternativo, que sustituye la liquidez por la variación en la tenencia de títulos ($\Delta T_t$), arroja conclusiones idénticas (Figura~\ref{fig:irf_tit}). La respuesta contemporánea del ROA a un choque en $g_t^r$ es de $0.0000162$ con un intervalo de confianza de $[-0.000626, 0.000640]$, claramente no significativa. Esta falta de significancia persiste en todos los horizontes. La inversión en títulos ($\Delta T_t$) muestra oscilaciones erráticas alrededor de cero, siempre dentro de las bandas de confianza.
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.85\textwidth]{03_graficos_irf_remesas_titulos.pdf}
-\caption{Funciones de impulso-respuesta ortogonales (Cholesky) – Canal de Títulos. Choque en $g_t^r$; bandas de confianza bootstrap al 95\%. \textit{Fuente:} Elaboración propia a partir de estimaciones del modelo SVAR y datos de BCN, SIBOIF y SECMCA.}
+\caption{Funciones de impulso-respuesta ortogonales (Cholesky) – Canal de Títulos. Choque en $g_t^r$; bandas de confianza bootstrap al 95\%.  \textit{Fuente:} Elaboración propia a partir de estimaciones del modelo SVAR y datos de BCN, SIBOIF y SECMCA.}
 \label{fig:irf_tit}
 \end{figure}
 
@@ -323,7 +342,7 @@ Horizonte (meses) & $g_t^r$ (Remesas) & $\Delta T_t$ (Títulos) & $\Delta i_t^p$
 \end{tabular}
 \begin{tablenotes}[para, flushleft]
 \small
-\item \textit{Nota:} Se muestran los valores para horizontes seleccionados. La suma de las contribuciones puede diferir del 100\% por redondeo.
+\item \textit{Nota:} La suma de las contribuciones puede diferir del 100\% por redondeo.
 \item \textit{Fuente:} Elaboración propia a partir de estimaciones del modelo SVAR y datos de BCN, SIBOIF y SECMCA.
 \end{tablenotes}
 \end{threeparttable}
@@ -337,9 +356,13 @@ Horizonte (meses) & $g_t^r$ (Remesas) & $\Delta T_t$ (Títulos) & $\Delta i_t^p$
 \end{figure}
 
 \subsection{Análisis de causalidad}
-Los tests de causalidad de Granger refuerzan los hallazgos anteriores. En el modelo de Liquidez, la hipótesis nula de que $g_t^r$ no causa en el sentido de Granger a las demás variables endógenas ($\Delta i_t^p$, $\Delta L_t$, $ROA_t$) no puede rechazarse ($F=0.504$, $p=0.872$). De igual forma, en el modelo de Títulos, el estadístico correspondiente es $F=0.313$ ($p=0.971$).
+
+Los resultados de las funciones de impulso-respuesta encuentran respaldo adicional en los tests de causalidad de Granger. En ambas especificaciones, la hipótesis nula de que $g_t^r$ no causa, en el sentido de Granger, a las demás variables endógenas no puede rechazarse a los niveles convencionales de significancia: en el modelo de Liquidez se obtiene $F=0.504$ ($p=0.872$), y en el de Títulos $F=0.313$ ($p=0.971$). Estos $p$-valores, cercanos a la unidad, indican que la trayectoria pasada del crecimiento de las remesas carece de poder predictivo alguno sobre la evolución de las variables bancarias, lo que es plenamente coherente con la ausencia de respuestas dinámicas significativas detectada en las IRF y con la exigua contribución a la varianza del ROA revelada por la FEVD.
 
 \subsection{Síntesis de los resultados}
+
+La elevada proporción de varianza del ROA explicada por sus propias innovaciones (superior al 80\% en el largo plazo) es un resultado esperable en modelos VAR de dimensión reducida y no invalida las conclusiones. En primer lugar, refleja la persistencia inherente de los indicadores de rentabilidad bancaria, documentada ampliamente en la literatura \parencite{athanasoglou2008}. En segundo lugar, indica que existen determinantes adicionales del ROA —como la calidad de la cartera crediticia, la eficiencia operativa o el entorno competitivo— que no están capturados en el presente sistema. La inclusión de estas variables requeriría datos desagregados por banco, lo que excede el alcance de este estudio pero constituye una extensión natural del mismo.
+
 La evidencia empírica es concluyente: no existe un efecto \textit{spillover} estadísticamente significativo de las remesas sobre la rentabilidad del sistema bancario nicaragüense durante el período 2019-2025. Las funciones de impulso-respuesta no muestran ninguna respuesta significativa del ROA ante choques en $g_t^r$, ya que todos los intervalos de confianza del 95\% incluyen el cero. La descomposición de varianza revela que las remesas explican menos del 0.3\% de la variabilidad del ROA en ambos modelos, una magnitud económicamente despreciable.
 
 Estos hallazgos corroboran de manera contundente la hipótesis del \textit{lazy bank} \parencite{barajas2009}: en un entorno de escasa profundidad financiera y limitadas oportunidades de colocación de crédito, el exceso de liquidez inducido por las remesas no se traduce en mejoras de rentabilidad, sino que tiende a permanecer inactivo en los balances bancarios o a destinarse a activos de bajo rendimiento.
@@ -351,9 +374,43 @@ La ausencia de un efecto \textit{spillover} estadísticamente significativo de l
 
 Este comportamiento disímil encuentra su explicación fundamental en las características estructurales y regulatorias de la economía nicaragüense durante el período 2019--2025. El flujo de remesas actúa como un choque positivo de liquidez exógena, pero la velocidad y magnitud de este ingreso saturan los canales tradicionales de transmisión. En un mercado bancario caracterizado por rasgos oligopólicos y una baja profundidad financiera, las instituciones se enfrentan a severas fricciones para la colocación de activos productivos en el sector real \parencite{gammage2006, orozco2012}. Si el ciclo económico —capturado en el modelo mediante el control exógeno del IMAE ($g_t^y$)— no provee una demanda de crédito solvente o proyectos de inversión cuyo rendimiento compense el riesgo soberano y cambiario, las entidades se ven forzadas a esterilizar internamente el exceso de fondos.
 
-Los resultados de las funciones de impulso-respuesta y, de manera más contundente, las descomposiciones de varianza ($FEVD$), aportan evidencia robusta en favor de la hipótesis del banco perezoso o \textit{lazy bank hypothesis} formulada por \textcite{barajas2009}. Al constatarse que los choques en las remesas explican menos del 0.3\% de la variabilidad del error de pronóstico del ROA en un horizonte de 12 meses, se hace patente que la banca absorbe estos recursos transaccionales pasivamente. El exceso de fondeo de bajo costo se almacena bajo la forma de liquidez disponible ($\Delta L_t$) o se desplaza marginalmente hacia carteras de inversión en títulos valores de alta liquidez y bajo riesgo ($\Delta T_t$), las cuales explicaron hasta un 16.50\% y 6.27\% de la varianza del ROA, respectivamente. Esta acumulación defensiva de activos líquidos genera un costo de oportunidad intrínseco que contrarresta el beneficio del abaratamiento del fondeo pasivo, neutralizando el impacto neto sobre la rentabilidad final de los accionistas.
+Los resultados de las funciones de impulso-respuesta y, de manera más contundente, las descomposiciones de varianza ($FEVD$), aportan evidencia robusta en favor de la hipótesis del banco perezoso o \textit{lazy bank hypothesis} formulada por \textcite{barajas2009}. Al constatarse que los choques en las remesas explican menos del 0.3\% de la variabilidad del error de pronóstico del ROA en un horizonte de 12 meses, se hace patente el alto grado de inercia que impera en la rentabilidad de la industria bancaria local. Esta rigidez operativa está vinculada a las condiciones del mercado nacional, donde incluso los canales de transmisión domésticos exhiben capacidades explicativas modestas; la variación en la liquidez disponible ($\Delta L_t$) y en la tenencia de títulos ($\Delta T_t$) determinan únicamente el 16.50\% y el 6.27\% de dicha varianza, respectivamente. Bajo este escenario de concentración y competencia limitada, el exceso de fondeo de bajo costo se almacena de forma defensiva en activos altamente líquidos o se desplaza marginalmente hacia carteras de inversión en títulos valores de bajo riesgo. Dicha acumulación genera un costo de oportunidad intrínseco que contrarresta el beneficio del abaratamiento del fondeo pasivo, neutralizando el impacto neto sobre la rentabilidad final de los accionistas.
 
-Este fenómeno diferencia la experiencia nicaragüense de las conclusiones transversales obtenidas por \textcite{aggarwal2011} y \textcite{giuliano2009}, quienes argumentan que las remesas dinamizan de forma generalizada la profundización y eficiencia de los sistemas financieros en el mundo en desarrollo. En el caso de Nicaragua, el efecto derrame se restringe al plano estrictamente transaccional y de captación, sin lograr traducirse en un motor endógeno de rentabilidad o de expansión del crédito al sector privado. Las implicaciones de política sugieren que los esfuerzos regulatorios no deben centrarse únicamente en la atracción y bancarización formal de los flujos de remesas, sino en la remoción de las barreras estructurales que limitan la asignación eficiente del capital hacia actividades productivas de mayor valor agregado.
+Este fenómeno diferencia la experiencia nicaragüense de las conclusiones transversales obtenidas por \textcite{aggarwal2011} y \textcite{giuliano2009}, quienes argumentan que las remesas dinamizan de forma generalizada la profundización y eficiencia de los sistemas financieros en el mundo en desarrollo. En Nicaragua, el efecto derrame se restringe al plano estrictamente transaccional y de captación de pasivos, sin lograr traducirse en un motor endógeno de expansión del crédito al sector privado. Las implicaciones de política que se desprenden de estos hallazgos son claras: los esfuerzos dirigidos exclusivamente a incrementar la captación de remesas a través de la banca formal —mediante campañas de bancarización o reducción de costos de envío— no se traducirán mecánicamente en un sistema financiero más eficiente o en una mayor profundización del crédito. Para que el \textit{spillover} macroeconómico se materialice, es imperativo complementar la agenda de inclusión financiera con reformas estructurales que amplíen las oportunidades de inversión productiva en la economía real, fortalezcan el entorno contractual de ejecución de garantías y mitiguen las asimetrías de información que actualmente inducen a las instituciones a optar por la acumulación defensiva de liquidez sobre la colocación de financiamiento productivo.
+
+\subsection{Limitaciones}
+
+El presente estudio enfrenta al menos tres limitaciones que deben ser consideradas al interpretar los resultados. En primer lugar, la variable de control $g_t^y$ (crecimiento del IMAE) se trata como exógena en el sistema, aunque existe la posibilidad de que el desempeño bancario y el ciclo real se determinen conjuntamente. La inclusión del IMAE como variable endógena en un VAR ampliado sería un paso natural para abordar esta cuestión. En segundo lugar, el análisis se basa en datos agregados del sistema bancario, lo que impide explorar heterogeneidades entre instituciones (por tamaño, propiedad o modelo de negocio) que podrían enriquecer la comprensión del fenómeno. Finalmente, el período muestral, aunque adecuado para capturar el \textit{boom} de remesas, es relativamente corto (84 observaciones mensuales), lo que limita la posibilidad de incorporar un mayor número de rezagos o variables sin comprometer los grados de libertad.
+
+\section{Conclusiones}
+Este artículo ha examinado el efecto \textit{spillover} de las remesas familiares sobre la rentabilidad del sistema bancario nicaragüense durante el período de crecimiento extraordinario de estos flujos (2019--2025). Utilizando modelos VAR estructurales que distinguen el canal de liquidez y el canal de títulos, la evidencia empírica descarta de manera robusta la existencia de un impacto significativo de las remesas sobre el ROA en cualquier horizonte temporal. Las funciones de impulso-respuesta muestran respuestas nulas con intervalos de confianza que siempre contienen el cero, y la descomposición de varianza revela que los choques en las remesas explican menos del 0.3\% de la variabilidad del ROA. La causalidad de Granger, con $p$-valores superiores a 0.87, confirma que las remesas carecen de poder predictivo sobre las variables bancarias.
+
+Estos resultados respaldan la hipótesis del banco perezoso en el contexto nicaragüense: el exceso de liquidez exógena es absorbido pasivamente por las instituciones financieras, sin traducirse en mejoras de rentabilidad ni en una expansión del crédito. Las implicaciones apuntan a la necesidad de reformas estructurales que vayan más allá de la mera atracción de flujos, orientadas a remover las barreras que limitan la transformación de liquidez en activos productivos. Investigaciones futuras podrían extender este análisis utilizando datos a nivel de banco para explorar heterogeneidades, o aplicar métodos de identificación más flexibles que relajen los supuestos del ordenamiento recursivo.
 
 \newpage
+\appendix
+\setcounter{figure}{0}
+\renewcommand{\thefigure}{A.\arabic{figure}}
+\setcounter{table}{0}
+\renewcommand{\thetable}{A.\arabic{table}}
 
+\section{Anexo: Funciones de Impulso-Respuesta Generalizadas (GIRF)}
+\label{sec:anexo_a}
+
+Las siguientes figuras presentan las respuestas dinámicas generalizadas \parencite{pesaran1998}, las cuales no dependen de la estructura recursiva de Cholesky, corroborando la robustez de los hallazgos principales discutidos en la Sección \ref{sec:resultados}.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{04_graficos_irf_generales_pesaran.pdf}
+\caption{Funciones de impulso-respuesta generalizadas – Canal de Liquidez. \textit{Fuente:} Elaboración propia a partir de estimaciones del modelo SVAR y datos de BCN, SIBOIF y SECMCA.}
+\label{fig:girf_liq}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{04_graficos_irf_generales_pesaran_titulos.pdf}
+\caption{Funciones de impulso-respuesta generalizadas – Canal de Títulos. \textit{Fuente:} Elaboración propia a partir de estimaciones del modelo SVAR y datos de BCN, SIBOIF y SECMCA.}
+\label{fig:girf_tit}
+\end{figure}
+
+\newpage
