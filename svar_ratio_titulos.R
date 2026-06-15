@@ -440,4 +440,4 @@ grafico_fevd_roa <- ggplot2::ggplot(tabla_fevd_long, aes(x = Mes, y = Porcentaje
 
 print(grafico_fevd_roa)
 
-ggplot2::ggsave("05_grafico_fevd_roa_formal.pdf", plot = grafico_fevd_roa, width = 7.5, height = 5)
+ggplot2::ggsave("05_grafico_fevd_roa_formal_titulos.pdf", plot = grafico_fevd_roa, width = 7.5, height = 5)
