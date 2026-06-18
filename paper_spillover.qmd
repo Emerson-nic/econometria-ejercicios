@@ -160,7 +160,7 @@ De igual modo, el IMAE desestacionalizado se transforma en $g_t^y = \Delta \ln(I
 
 \label{subsec:estacionariedad}
 
-La estacionariedad de las variables transformadas se verifica mediante los contrastes de Dickey-Fuller Aumentado (ADF) y KPSS. La Tabla~\ref{tab:estacionariedad} confirma que todas las series consideradas son integradas de orden cero, $I(0)$. El ADF rechaza la hipótesis nula de raíz unitaria al 1\% en todos los casos, mientras que el KPSS no rechaza la estacionariedad al nivel del 5\% para la mayoría de las variables. La serie $g_t^r$ presenta evidencia mixta en el KPSS ($p < 0.01$), lo que es común en tasas de crecimiento financieras de alta frecuencia; no obstante, se procede bajo el supuesto de estacionariedad avalado por la potencia del ADF y la naturaleza estructural del filtrado X-13ARIMA \parencite{findley1998}.
+La estacionariedad\footnote{Las variables en niveles no son estacionarias, excepto en ROA} de las variables transformadas se verifica mediante los contrastes de Dickey-Fuller Aumentado (ADF) y KPSS. La Tabla~\ref{tab:estacionariedad} confirma que todas las series consideradas son integradas de orden cero, $I(0)$. El ADF rechaza la hipótesis nula de raíz unitaria al 1\% en todos los casos, mientras que el KPSS no rechaza la estacionariedad al nivel del 5\% para la mayoría de las variables. La serie $g_t^r$ presenta evidencia mixta en el KPSS ($p < 0.01$), lo que es común en tasas de crecimiento financieras de alta frecuencia; no obstante, se procede bajo el supuesto de estacionariedad avalado por la potencia del ADF y la naturaleza estructural del filtrado X-13ARIMA \parencite{findley1998}.
 
 \begin{table}[H]
 \centering
@@ -177,11 +177,12 @@ $\Delta T_t$ (Títulos) & 0.01 & 0.10 \\
 $g_t^r$ (Remesas) & 0.01 & 0.01 \\
 $\Delta i_t^p$ (Tasa pasiva) & 0.01 & 0.10 \\
 $g_t^y$ (IMAE) & 0.01 & 0.10 \\
+$g_t^c$ (Crédito) & 0.38 & 0.10 \\
 \bottomrule
 \end{tabular}
 \begin{tablenotes}[para, flushleft]
 \small
-\item \textit{Nota:} ADF: H0 = raíz unitaria; KPSS: H0 = estacionariedad. Valores $< 0.05$ rechazan H0 al 5\%. Todas las series fueron desestacionalizadas (X-13ARIMA-SEATS) y diferenciadas. $g_t^r$ muestra evidencia mixta en KPSS, común en tasas financieras de alta frecuencia; se asume estacionariedad avalada por ADF.
+\item \textit{Nota:} ADF: H0 = raíz unitaria; KPSS: H0 = estacionariedad. Valores $< 0.05$ rechazan H0 al 5\%. Todas las series fueron desestacionalizadas (X-13ARIMA-SEATS) y diferenciadas. $g_t^r$ muestra evidencia mixta en KPSS,se asume estacionariedad avalada por ADF. Para $g_t^c$, el test ADF no rechaza la raíz unitaria debido a la distorsión por quiebres estructurales severos (como la crisis de 2018 y pandemia de 2020); no obstante, el test KPSS y su naturaleza como tasa de crecimiento interanual dictaminan su tratamiento como $I(0)$. Estos quiebres se asimilan mediante variables exógenas (dummies) en la estimación del SVAR.
 \item \textit{Fuente:} Elaboración propia a partir de datos de BCN, SIBOIF y SECMCA.
 \end{tablenotes}
 \end{threeparttable}
