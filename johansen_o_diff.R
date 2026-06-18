@@ -44,6 +44,8 @@ if(FALSE){
   aun asi con la correcion anterio el svar sigui con autocorrelacion
   se decidio usar en todas las variables menos roa
   
+  se agrega el credito bancario como variable pero se trabaja en diff
+  
   "
 }
 
@@ -101,8 +103,8 @@ df_banano <- dataset_banano %>%
 #     log_remesas = log(flujo_remesas),
 #     dlog_remesas = log_remesas - lag(log_remesas, 12)
 #   ) %>%
-   dplyr::select(fecha, roa, liquidez, ratio_titulos, tasa_pasiva, 
-                 flujo_remesas, d2018, dcovid, imae_sa ) %>% #dlog_remesas incluir si se activa log_remesas
+   dplyr::select(fecha, roa, liquidez, ratio_titulos, tasa_pasiva, credito_privado,
+                 flujo_remesas, d2018, dcovid, imae ) %>% #dlog_remesas incluir si se activa log_remesas
    tidyr::drop_na()
 
 # este transfomacion se hace mas adelante
@@ -117,23 +119,25 @@ dataset_banano_graficos %>%
   tidyr::pivot_longer(cols = -fecha, names_to = "variable", values_to = "valor") %>%
   dplyr::mutate(
     variable = dplyr::case_when(
-      variable == "roa"             ~ "Rentabilidad Bancaria (ROA)",
-      variable == "liquidez"        ~ "Índice de Liquidez",
-      variable == "ratio_titulos"   ~ "Inversión en Títulos Valores",
-      variable == "tasa_pasiva"     ~ "Tasa de Interés Pasiva",
-      variable == "flujo_remesas"    ~ "Flujo de Remesas",
-      variable == "imae_sa"         ~ "IMAE (Desestacionalizado)",
-      TRUE                          ~ variable
+      variable == "roa"  ~ "Rentabilidad Bancaria (ROA)",
+      variable == "liquidez" ~ "Índice de Liquidez",
+      variable == "ratio_titulos" ~ "Inversión en Títulos Valores",
+      variable == "tasa_pasiva" ~ "Tasa de Interés Pasiva",
+      variable == "flujo_remesas" ~ "Flujo de Remesas",
+      variable == "imae" ~ "IMAE",
+      variable == "credito_privado" ~ "Credito Privado",
+      TRUE ~ variable
     )
   ) %>%
   dplyr::mutate(
     variable = factor(variable, levels = c(
       "Flujo de Remesas", 
-      "IMAE (Desestacionalizado)",
+      "IMAE",
       "Índice de Liquidez", 
       "Inversión en Títulos Valores",
       "Tasa de Interés Pasiva", 
-      "Rentabilidad Bancaria (ROA)"
+      "Rentabilidad Bancaria (ROA)",
+      "Credito Privado"
     ))
   ) %>%
   ggplot2::ggplot(aes(x = fecha, y = valor)) +
@@ -154,10 +158,12 @@ ggplot2::ggsave("grafico_variables.pdf", width = 8, height = 6)
 df_banano007 <- dataset_banano %>%
      dplyr::mutate(
        log_remesas = log(flujo_remesas),
-       dlog_remesas = log_remesas - lag(log_remesas, 12)
+       dlog_remesas = log_remesas - lag(log_remesas, 12),
+       log_credito = log(credito_privado),
+       dlog_credito = log_credito - lag(log_credito, 12)
      ) %>%
   dplyr::select(fecha, roa, liquidez, ratio_titulos, tasa_pasiva, 
-                dlog_remesas, d2018, dcovid, imae_sa ) %>% 
+                dlog_remesas, d2018, dcovid, imae, dlog_credito) %>% 
   tidyr::drop_na()
 
 variables_endogenas <- df_banano007 %>%
@@ -212,19 +218,21 @@ test_estacionariedad <- function(data, variables,
 }
 
 #aplicar funcion
-vars_a_testear <- c("roa", "liquidez", "ratio_titulos", "dlog_remesas", "tasa_pasiva", "imae_sa")
-resultados_pval <- test_estacionariedad(df_banano007, vars_a_testear)
+vars_a_testear <- c("roa", "liquidez", "ratio_titulos", "flujo_remesas", 
+                    "tasa_pasiva", "imae", "credito_privado") 
+
+resultados_pval <- test_estacionariedad(dataset_banano, vars_a_testear)
 print(resultados_pval)
 
 #resultados contradictorios lo mejor es diferenciar solo roa es estacionario
 # liquidez
 # ratio_titulos
 # tasa_pasivas
-# seran diff i(2)
 
-#2diff ----
 
-#hacer la frecuencia mensual las remesas
+# diff interanual ----
+
+#hacer la frecuencia mensual 
 remesas_ts <- ts(dataset_banano$flujo_remesas, 
                  start = c(2008, 1), 
                  frequency = 12)
@@ -241,12 +249,21 @@ liquidez_ts <- ts(dataset_banano$liquidez,
                   start = c(2008, 1), 
                   frequency = 12)
 
+credito_ts <- ts(dataset_banano$credito_privado, 
+                  start = c(2008, 1), 
+                  frequency = 12)
+
+imae_ts <- ts(dataset_banano$imae, 
+              start = c(2008, 1), 
+              frequency = 12)
+
 # se extra la serie desestacionalizada usando X-13ARIMA
 remesas_sa <- seasonal::final(seasonal::seas(remesas_ts))
 liquidez_sa <- seasonal::final(seasonal::seas(liquidez_ts))
 titulos_sa <- seasonal::final(seasonal::seas(titulos_ts))
 tasa_sa <- seasonal::final(seasonal::seas(tasa_ts))
-#el imae ya es deeestacionalizada
+credito_sa <- seasonal::final(seasonal::seas(credito_ts))
+imae_sa <- seasonal::final(seasonal::seas(imae_ts))
 
 df_bananox00 <- dataset_banano %>%
   dplyr:: mutate(
@@ -254,19 +271,22 @@ df_bananox00 <- dataset_banano %>%
     liquidez_sa      = as.numeric(liquidez_sa),
     ratio_titulos_sa = as.numeric(titulos_sa),
     tasa_pasiva_sa   = as.numeric(tasa_sa),
-    imae_sa = as.numeric(imae_sa)
+    imae_sa = as.numeric(imae_sa),
+    credito_sa = as.numeric(credito_sa)
   )
 
 vars_a_testear00 <- c("flujo_remesas_sa", 
                       "liquidez_sa",  
                       "ratio_titulos_sa",
                       "tasa_pasiva_sa",
-                      "imae_sa")
+                      "imae_sa",
+                      "credito_sa")
 
 resultados_pval00 <- test_estacionariedad(df_bananox00, vars_a_testear00)
 print(resultados_pval00)
 
 #nuevo dataset
+#intermesual el diff
 df_bananox <- dataset_banano %>%
   dplyr::mutate(
     flujo_remesas_sa = as.numeric(remesas_sa), 
@@ -274,8 +294,11 @@ df_bananox <- dataset_banano %>%
     ratio_titulos_sa = as.numeric(titulos_sa),
     tasa_pasiva_sa = as.numeric(tasa_sa),
     imae_sa = as.numeric(imae_sa),
+    credito_sa = as.numeric(credito_sa),
     log_remesas_sa  = log(flujo_remesas_sa),
     dlog_remesas = log_remesas_sa - lag(log_remesas_sa, 1),
+    log_credito_sa  = log(credito_sa),
+    dlog_credito = log_credito_sa - lag(log_credito_sa, 1),
     log_imae_sa = log(imae_sa),
     dlog_imae = log_imae_sa - lag(log_imae_sa, 1),
     d_liquidez = liquidez_sa - lag(liquidez_sa, 1),
@@ -284,7 +307,7 @@ df_bananox <- dataset_banano %>%
     
   ) %>%
   dplyr::select(fecha, roa, d_liquidez, d_ratio_titulos, d_tasa_pasiva, dlog_imae,
-                dlog_remesas, d2018, dcovid) %>%
+                dlog_remesas, dlog_credito, d2018, dcovid) %>%
   tidyr::drop_na()
 
 print(head(df_bananox, 24))
@@ -292,7 +315,8 @@ print(head(df_bananox, 24))
 #aplicar test de estacionariedad
 
 vars_a_testear1 <- c("roa", "d_liquidez", "d_ratio_titulos", 
-                     "dlog_remesas", "d_tasa_pasiva", "dlog_imae")
+                     "dlog_remesas", "d_tasa_pasiva", "dlog_imae",
+                     "dlog_credito")
 
 resultados_pval1 <- test_estacionariedad(df_bananox, vars_a_testear1)
 print(resultados_pval1)
@@ -309,13 +333,14 @@ df_bananox_graficos %>%
   tidyr::pivot_longer(cols = -fecha, names_to = "variable", values_to = "valor") %>%
   dplyr::mutate(
     variable = dplyr::case_when(
-      variable == "roa"             ~ "Rentabilidad Bancaria (ROA)",
-      variable == "d_liquidez"      ~ "Var. Índice de Liquidez",
+      variable == "roa"  ~ "Rentabilidad Bancaria (ROA)",
+      variable == "d_liquidez"  ~ "Var. Índice de Liquidez",
       variable == "d_ratio_titulos" ~ "Var. Inversión en Títulos",
-      variable == "d_tasa_pasiva"   ~ "Var. Tasa de Interés Pasiva",
-      variable == "dlog_remesas"    ~ "Crecimiento de Remesas (dlog)",
-      variable == "dlog_imae"       ~ "Crecimiento IMAE (dlog)",
-      TRUE                          ~ variable
+      variable == "d_tasa_pasiva"  ~ "Var. Tasa de Interés Pasiva",
+      variable == "dlog_remesas"  ~ "Crecimiento de Remesas (dlog)",
+      variable == "dlog_imae"  ~ "Crecimiento IMAE (dlog)",
+      variable == "dlog_credito" ~ "Crecimiento de Credito Privado (dlog)",
+      TRUE  ~ variable
     )
   ) %>%
   dplyr::mutate(
@@ -325,7 +350,8 @@ df_bananox_graficos %>%
       "Var. Índice de Liquidez", 
       "Var. Inversión en Títulos",
       "Var. Tasa de Interés Pasiva", 
-      "Rentabilidad Bancaria (ROA)"
+      "Rentabilidad Bancaria (ROA)",
+      "Crecimiento de Credito Privado (dlog)"
     ))
   ) %>%
   ggplot2::ggplot(aes(x = fecha, y = valor)) +
@@ -384,3 +410,39 @@ df_bananox <- df_bananox %>%
 
 readr::write_csv(df_bananox, "dataset_spillover_transformado.csv")
 
+if(FALSE){
+  "
+  
+  En el corto plazo no hay evidencia de nada se rechaza la hipotesis de que
+  hay efecto spillover hacia el roa pero habra efecto spillover en el
+  credito privado causado por las remesa, en el largo plazo deberia cumplirse
+  talvez haya potencia estadistica insuficiente si el vecm no cuentra efecto
+  
+  variables para ver si se puede hacer vecm
+  
+  log(remesas) #millones de dolares
+  log(imae)
+  tasa_pasiva
+  log(credito_privado) #millones de cordobas
+  
+  ver archivo vecm
+  
+  "
+}
+
+# bloque cointegrado ----
+
+#variables a ocupar
+
+dataset_vecm <- dataset_banano %>%
+  dplyr::mutate(log_remesa = log(flujo_remesas),
+                log_imae = log(imae),
+                log_credito = log(credito_privado)
+  ) %>%
+  dplyr::inner_join(df_bananox %>% 
+                      dplyr::select(fecha, d2018, dboom_remesas_covid), by = "fecha") %>% 
+  # d2018 se llama d2018.y o d2018.x porque dplyr ve 2 variables que se llaman iguales 
+  # asi que hace eso para que no se llamew iguales pero ambas son la misma cosa
+  tidyr::drop_na()
+
+readr::write_csv(dataset_vecm, "dataset_vecm.csv")
