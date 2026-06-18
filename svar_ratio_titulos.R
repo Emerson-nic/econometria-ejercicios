@@ -56,6 +56,15 @@ endog_var <- df_bananox[, c("dlog_remesas",
 
 exog_var <- df_bananox[, c("d2018", "dboom_remesas_covid", "dlog_imae")] 
 
+# por criterios
+seleccion_rezagos <- vars::VARselect(y = endog_var, 
+                                     lag.max = 12, 
+                                     type = "const",
+                                     season = 12, 
+                                     exogen = exog_var)
+
+print(seleccion_rezagos$selection)
+
 
 #esto guardo el bucle siguiente
 tabla_rezagos <- data.frame()
@@ -94,7 +103,7 @@ print(paste("min BIC/Schwarz",
 # modelo var ----
 
 var_mod <- VAR(endog_var,
-               p = 3, 
+               p = 2, 
                type = "const", 
                exogen = exog_var)
 

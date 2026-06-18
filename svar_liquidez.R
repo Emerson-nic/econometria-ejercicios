@@ -79,6 +79,14 @@ endog_var <- df_bananox[, c("dlog_remesas",
 
 exog_var <- df_bananox[, c("d2018", "dboom_remesas_covid", "dlog_imae")] 
 
+# por criterios
+seleccion_rezagos <- vars::VARselect(y = endog_var, 
+                                     lag.max = 12, 
+                                     type = "const",
+                                     season = 12, 
+                                     exogen = exog_var)
+
+print(seleccion_rezagos$selection)
 
 #esto guardo el bucle siguiente
 tabla_rezagos <- data.frame()
@@ -86,7 +94,10 @@ tabla_rezagos <- data.frame()
 #bucle para estimar de 1 a 12 rezagos y extraer el Log-Likelihood de cada uno ----
 for (i in 1:12) {
   #estimar el modelo temporalmente
-  modelo_tmp <- VAR(endog_var, p = i, type = "const", exogen = exog_var)
+  modelo_tmp <- VAR(endog_var, 
+                    p = i, type = "const", 
+                    season = 12, 
+                    exogen = exog_var)
   
   #extraer el Log-Likelihood del sistema de ecuaciones
   ll <- as.numeric(stats::logLik(modelo_tmp))
@@ -117,7 +128,7 @@ print(paste("min BIC/Schwarz",
 # modelo var ----
 
 var_mod <- VAR(endog_var,
-               p = 3, 
+               p = 1, 
                type = "const", 
                exogen = exog_var)
 
