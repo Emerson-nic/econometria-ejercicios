@@ -352,7 +352,7 @@ print(irf_data_vecm_imae, n = Inf)
 
 readr::write_csv(irf_data_vecm_imae, "irf_vecm_largo_plazo_imae.csv")
 
-#irf generales Pesaran‑Shin ----
+#irf generales imae Pesaran‑Shin ----
 
 irf_vecm_general <- vars::irf(modelo_largo_plazo, 
                       impulse = "log_remesa", 
@@ -454,23 +454,6 @@ grafico_irf_remesas_gen <- ggplot2::ggplot(irf_data_vecm_general, aes(x = horizo
     panel.spacing = unit(1, "lines")
   )
 ggplot2::ggsave("08_irf_gen_remesas.pdf", plot = grafico_irf_remesas_gen, width = 7, height = 8)
-
-grafico_irf_imae_gen <- ggplot2::ggplot(irf_data_vecm_imae_general, aes(x = horizon)) +
-  ggplot2::geom_hline(yintercept = 0, linetype = "dashed", color = "gray40", linewidth = 0.6) +
-  ggplot2::geom_ribbon(aes(ymin = inferior, ymax = superior), fill = "gray80", alpha = 0.6) +
-  ggplot2::geom_line(aes(y = puntual), color = "darkred", linewidth = 0.8) +
-  ggplot2::facet_wrap(~ respuesta_formal, scales = "free_y", ncol = 1) +
-  ggplot2::scale_x_continuous(breaks = seq(0, 36, by = 6)) +
-  ggplot2::labs(
-    x = "Horizonte Temporal (Meses)",
-    y = "Respuesta del Crédito"
-  ) +
-  ggplot2::theme_minimal(base_size = 10) +
-  ggplot2::theme(
-    strip.text = element_text(face = "bold", size = 11),
-    plot.title = element_text(face = "bold", size = 12)
-  )
-ggplot2::ggsave("09_irf_gen_imae_credito.pdf", plot = grafico_irf_imae_gen, width = 7, height = 4)
 
 # irf de tasa pasiva a credito ----
 
@@ -592,6 +575,24 @@ irf_data_vecm_imae_general <- bind_rows(lapply(resp_names_imae_general, function
 print(irf_data_vecm_imae_general, n = Inf)
 
 readr::write_csv(irf_data_vecm_imae_general, "irf_vecm_largo_plazo_imae_general.csv")
+
+grafico_irf_imae_gen <- ggplot2::ggplot(irf_data_vecm_imae_general, aes(x = horizon)) +
+  ggplot2::geom_hline(yintercept = 0, linetype = "dashed", color = "gray40", linewidth = 0.6) +
+  ggplot2::geom_ribbon(aes(ymin = inferior, ymax = superior), fill = "gray80", alpha = 0.6) +
+  ggplot2::geom_line(aes(y = puntual), color = "darkred", linewidth = 0.8) +
+  ggplot2::facet_wrap(~ respuesta_formal, scales = "free_y", ncol = 1) +
+  ggplot2::scale_x_continuous(breaks = seq(0, 36, by = 6)) +
+  ggplot2::labs(
+    x = "Horizonte Temporal (Meses)",
+    y = "Respuesta del Crédito"
+  ) +
+  ggplot2::theme_minimal(base_size = 10) +
+  ggplot2::theme(
+    strip.text = element_text(face = "bold", size = 11),
+    plot.title = element_text(face = "bold", size = 12)
+  )
+ggplot2::ggsave("09_irf_gen_imae_credito.pdf", plot = grafico_irf_imae_gen, width = 7, height = 4)
+
 
 
 # fev ----
