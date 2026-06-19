@@ -41,6 +41,16 @@ pacman::p_load(tidyverse,
                usethis #para .Renviron igual que .env de python
                )
 
+# importar datos si no existen en el entorno ----
+if (!exists("df_credito")) {
+  if (file.exists("df_credito.csv")) {
+    df_credito <- readr::read_csv("df_credito.csv") %>%
+      dplyr::mutate(fecha = as.Date(fecha))
+  } else {
+    source("datos_json.R")
+  }
+}
+
 # funcion para pivotar el siboif (de formato contabilidad a timeseries) ----
 procesar_siboif <- function(file_path, sheet_name) {
   #lee el archivo saltando los encabezados iniciales
@@ -197,13 +207,13 @@ head(imae_raw, 20)
 
 #selecionar la serie desestacionalizada
 imae_ts_df <- imae_raw %>%
-  dplyr::select(sa_m) %>%
+  dplyr::select(orig_m) %>%
   dplyr::mutate(
-    imae_sa = as.numeric(sa_m) / 100, #se divede 100 para que quede en decimal 
+    imae = as.numeric(orig_m) / 100, #se divede 100 para que quede en decimal 
     # y sea compatible con las otras series del vare
     fecha = seq(from = as.Date("2006-01-01"), by = "month", length.out = dplyr::n())
   ) %>%
-  dplyr::select(fecha, imae_sa) %>%
+  dplyr::select(fecha, imae) %>%
   tidyr::drop_na()
 
 
@@ -213,10 +223,38 @@ print(names(imae_ts_df))
 print("imae")
 print(head(imae_ts_df, 12))
 
+#nuevas variables para otro var----
+
+if(FALSE){
+  "
+  
+  Este var tendira estas variables:
+  remesas
+  Tasa de crecimiento del saldo de cartera de crédito comercial o de consumo
+  La Proxy de Demanda (Ciclo y Riesgo):
+  1. IMAE
+  2. El Índice de Morosidad o Cartera Vencida
+  ROA
+  
+  en esta caso se busca indice de morosidad o cartera vencida
+  y cartera de credito o similar
+  
+  buscar las variables nuevas 
+  lo hare con la api en otro archivo 
+  el api de siboif no me corre mejor hago un json de FyU OSD MN y ME
+  del semca
+  
+  fyu = fuentes y usos
+  osd = otras sociedades de deposito
+  mn y me = moneda nacional y extranjeras
+  
+  "
+}
+
 
 #unificar ----
 
-dataset_banano <- list(siboif_completo_ts, remesas_ts, tasas_ts, imae_ts_df) %>%
+dataset_banano <- list(siboif_completo_ts, remesas_ts, tasas_ts, imae_ts_df, df_credito) %>%
   purrr::reduce(dplyr::left_join, by = "fecha") %>%
   dplyr::arrange(fecha) %>%
   tidyr::drop_na() 
