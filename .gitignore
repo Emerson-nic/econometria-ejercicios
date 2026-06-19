@@ -40,6 +40,12 @@ fevd_roa_desglosado_titulos.csv
 irf_spillover_remesas_generales_titulos.csv
 irf_spillover_remesas_titulos.csv
 
+*.csv
+!dataset_spillover_remesas_clean.csv
+!df_credito.csv
+!dataset_spillover_transformado.csv
+!dataset_vecm.csv
+
 #imagenes 
 raices_var_titulos.png
 raices_var_credito.png
