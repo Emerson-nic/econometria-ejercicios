@@ -13,6 +13,10 @@ if(FALSE){
   tasa_pasiva
   log(credito_privado) #millones de cordobas
   
+  nota: las girf generales las persan estan malas son navi eso no es una prueba 
+  de robutez me paso hacer girf solo para vecm los demas son no significativo 
+  asi que no vale la pena
+  
   "
 }
 
@@ -674,3 +678,6 @@ print(grafico_fevd_credito)
 ggplot2::ggsave("05_grafico_fevd_credito_formal.pdf", plot = grafico_fevd_credito, width = 7.5, height = 5)
 
 
+# girf manuales ----
+
+#algun dia....
