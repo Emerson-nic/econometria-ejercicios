@@ -30,6 +30,10 @@ if(FALSE){
   seran estacionaras habria aplicar diff sobre diff entonces la version
   actual del svar es la mejor por mucho
   
+  nota: las girf generales las persan estan malas son navi eso no es una prueba 
+  de robutez me paso hacer girf solo para vecm los demas son no significativo 
+  asi que no vale la pena
+  
   "
 }
 

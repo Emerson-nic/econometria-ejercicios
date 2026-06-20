@@ -6,6 +6,10 @@ if(FALSE){
   dado que no encuentro evidencia en el los otros mdelos se agrego 
   otras variables 
   
+  nota: las girf generales las persan estan malas son navi eso no es una prueba 
+  de robutez me paso hacer girf solo para vecm los demas son no significativo 
+  asi que no vale la pena
+  
   "
 }
 

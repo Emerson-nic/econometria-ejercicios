@@ -7,6 +7,10 @@ if(FALSE){
   Este archivo es el mismo que svar_liquidez pero con otro enfoque 
   en las variables, se usa ratio de titulos
   
+  nota: las girf generales las persan estan malas son navi eso no es una prueba 
+  de robutez me paso hacer girf solo para vecm los demas son no significativo 
+  asi que no vale la pena
+  
   "
 }
 
