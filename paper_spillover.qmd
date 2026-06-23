@@ -143,7 +143,7 @@ Ante esta divergencia teórica, la presente investigación define operativamente
 El marco teórico y las características institucionales del sistema bancario nicaragüense —estructura oligopólica, elevada dolarización de facto y gestión adversa al riesgo— sugieren que la abundancia de liquidez proveniente de las remesas no se traduce en una expansión activa del crédito ni en mejoras de rentabilidad. Por el contrario, se espera un comportamiento compatible con la hipótesis del banco perezoso (\textit{lazy bank}). En consecuencia, se formula la siguiente hipótesis central:
 
 \begin{quote}
-\textbf{H\textsubscript{1}:} \textit{Durante el período 2019-2025, un choque positivo en la tasa de crecimiento de las remesas familiares no produce un efecto dinámico estadísticamente significativo sobre la tasa de crecimiento del crédito productivo ni sobre la rentabilidad sobre activos (ROA) del sistema bancario nicaragüense.}
+\textbf{H\textsubscript{1}:} \textit{Durante el período 2019-2025, el flujo exógeno de remesas familiares ejerce un efecto spillover positivo y estadísticamente significativo sobre el sistema bancario nicaragüense, traduciéndose en una expansión medible de la cartera de crédito productivo.}
 \end{quote}
 
 \subsection{Objetivos de la Investigación}
@@ -535,8 +535,8 @@ Por su parte, el diagnóstico multivariante de los residuos (Tabla \ref{tab:diag
 \toprule
 Prueba & Estadístico ($\chi^2$) & Grados de libertad & Valor $p$ \\
 \midrule
-Autocorrelación (Portmanteau) & 180.93 & 164 & 0.173 \\
-Homocedasticidad (ARCH) & 1219.40 & 1200 & 0.342 \\
+Autocorrelación (Portmanteau - 12) & 180.93 & 164 & 0.173 \\
+Homocedasticidad (ARCH - 12) & 1219.40 & 1200 & 0.342 \\
 Normalidad (Jarque-Bera) & 115.72 & 8 & $<0.001$ \\
 \bottomrule
 \end{tabular}
