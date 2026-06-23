@@ -16,6 +16,8 @@ paper_spillover.aux
 paper_spillover.bcf
 paper_spillover.run.xml
 
+slices_spillover.tex
+
 #documentos
 *.doc
 *.pdf
