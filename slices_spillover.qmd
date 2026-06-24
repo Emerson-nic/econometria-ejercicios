@@ -453,23 +453,6 @@ La confirmación trasciende la simple falta de significancia transitoria. Se fun
 #| label: ultima diapositiva
 #| include: false
 
-if(FALSE){
-  "
-  
-  se hace esto para mostrar la bonita, yo traajo en linux por lo que
-  magick no me instala debo de instalar:
-  
-  libmagick++-dev
-  
-  aqui los comando de consola
-  
-sudo apt update
-sudo apt install libmagick++-dev
-  
-  "
-}
-
-# cargar librerias ----
 options(repos = c(CRAN = "https://cloud.r-project.org"))
 if (!require("pacman")) install.packages("pacman")
 
@@ -478,36 +461,42 @@ pacman::p_load(magick)
 ancho <- 1280
 alto  <- 960
 
-fondo <- image_blank(ancho, alto, color = "black")
+fondo <- image_blank(ancho, alto, color = "white")
 
 lorita <- image_read("bonita.png")
-lorita <- image_scale(lorita, "x400")
+lorita <- image_scale(lorita, "x250") 
 
 info_lorita <- image_info(lorita)
 x_centro <- (ancho - info_lorita$width) %/% 2
-y_pos    <- 100
+y_centro <- (alto - info_lorita$height) %/% 2
 
-slide <- image_composite(fondo, lorita, offset = paste0("+", x_centro, "+", y_pos))
+slide <- image_composite(fondo, lorita, offset = paste0("+", x_centro, "+", y_centro))
 
-slide <- image_annotate(slide,
-                        "Un Chocoyo no Vuela con Alas Cortadas",
-                        gravity = "center", location = "+0-280",
-                        size = 38, color = "white", font = "sans", weight = 700)
+slide <- image_annotate(slide, "Un Chocoyo no Vuela con Alas Cortadas",
+                        gravity = "center", location = "+0-300",
+                        size = 38, color = "black", font = "sans", weight = 700)
 
-slide <- image_annotate(slide,
-                        "¡Muchas gracias por su atención!",
+slide <- image_annotate(slide, "¡Muchas gracias por su atención!",
                         gravity = "center", location = "+0-180",
-                        size = 55, color = "white", font = "sans", weight = 700)
+                        size = 55, color = "black", font = "sans", weight = 700)
 
-slide <- image_annotate(slide,
-                        "Estamos abiertos a sus preguntas y comentarios.",
-                        gravity = "center", location = "+0-60",
-                        size = 30, color = "white")
+slide <- image_annotate(slide, "Estamos abiertos a sus preguntas y comentarios.",
+                        gravity = "center", location = "+0+180",
+                        size = 32, color = "black")
 
-slide <- image_annotate(slide,
-                        "Análisis del Efecto Spillover en el Sistema Financiero Nicaragüense",
-                        gravity = "center", location = "+0+40",
-                        size = 22, color = "white", style = "italic")
+slide <- image_annotate(slide, "Análisis del Efecto Spillover en el Sistema Financiero Nicaragüense",
+                        gravity = "center", location = "+0+280",
+                        size = 24, color = "black", style = "italic")
 
 image_write(slide, path = "slide_final.png", format = "png")
 ```
+
+\setbeamercolor{background canvas}{bg=white}
+
+## {.plain}
+
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{logo}{}
+
+\vspace*{-0.5cm}
+\makebox[\textwidth]{\includegraphics[width=\paperwidth, keepaspectratio]{slide_final.png}}
