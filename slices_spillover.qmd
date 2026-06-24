@@ -1,7 +1,7 @@
 ---
 title: "Análisis del Efecto Spillover"
 subtitle: "Perspectivas y Consecuencias en la Economía Contemporánea"
-author: 
+author:
   - "Katherine Pozo"
   - "Elias Chavarria"
   - "Francisco Diaz"
@@ -374,7 +374,8 @@ Normalidad (Jarque-Bera) & 115.72 & 8 & $<0.001$ \\
 
 \small
 - **El rezago del crédito:** La respuesta de la cartera es lenta, volviéndose estadísticamente significativa hasta el cuarto mes (acumula +1.77% a 36 meses).
-- **El canal real (IMAE):** La economía real reacciona de forma inmediata ($t=0$). Esto valida el canal indirecto: Remesas $\rightarrow$ Consumo (IMAE) \\ $\rightarrow$ Crédito.
+- **El canal real (IMAE):** La economía real reacciona de forma inmediata ($t=0$). Esto valida el canal indirecto: Remesas $\rightarrow$ Consumo (IMAE) \newline
+$\rightarrow$ Crédito.
 
 ## VECM: Sensibilidad al Ciclo Económico (Choque en IMAE)
 
