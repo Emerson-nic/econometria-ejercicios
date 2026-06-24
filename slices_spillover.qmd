@@ -511,4 +511,3 @@ slide <- image_annotate(slide,
 
 image_write(slide, path = "slide_final.png", format = "png")
 ```
-
