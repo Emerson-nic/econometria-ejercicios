@@ -45,6 +45,11 @@ format:
         
         % quitar sombras 
         \setbeamertemplate{blocks}[rounded][shadow=false]
+        
+        % formato de tablas y figutas
+        \setbeamertemplate{caption}[numbered]
+        \setbeamerfont{caption name}{series=\bfseries}
+        
 editor: visual
 ---
 
@@ -141,14 +146,11 @@ Modelamos el canal transitorio usando descomposición de Cholesky con el siguien
 - Canal de Liquidez: $y_t^{L} = (g_t^r, \Delta i_t^p, \Delta L_t, ROA_t)'$
 - Canal de Títulos: $y_t^{T} = (g_t^r, \Delta i_t^p, \Delta T_t, ROA_t)'$
 
-## Resultados SVAR: Diagnóstico y Estabilidad
+## Resultados SVAR: Diagnóstico Multivariante
 
-\begin{columns}
-\begin{column}{0.5\textwidth}
-\vspace{-0.2cm}
+\vspace{0.2cm}
 \begin{table}
 \centering
-\scriptsize
 \caption{Diagnóstico multivariante (Valores $p$)}
 \begin{tabular}{l c c c}
 \toprule
@@ -161,34 +163,49 @@ ARCH(12) & 0.185 & 0.403 & 0.473 \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+\vspace{0.3cm}
+\footnotesize
+\textbf{Interpretación técnica:}
+\begin{itemize}
+  \item \textbf{Robustez:} La ausencia de efectos ARCH ($p > 0.05$) garantiza la estabilidad de la varianza en los modelos.
+  \item \textbf{Limitaciones:} El rechazo de normalidad (JB) y la autocorrelación estacional (LM 12) son inherentes a series financieras mensuales.
+  \item \textbf{Solución:} La validez asintótica de las inferencias ha sido blindada mediante intervalos de confianza por remuestreo \textit{bootstrap}.
+\end{itemize}
+
+## Resultados SVAR: Estabilidad del Modelo
+
+\begin{columns}[T]
+\begin{column}{0.5\textwidth}
+\centering
+\vspace{0.2cm}
+\includegraphics[width=0.8\textwidth]{cusm_credito.pdf}
+\captionof{figure}{Test CUSUM: Estabilidad estructural}
 \end{column}
 
 \begin{column}{0.5\textwidth}
-\vspace{-0.2cm}
-\begin{center}
-\textbf{Test CUSUM (Modelo Crédito)} \\
-\vspace{0.1cm}
-\includegraphics[width=0.95\textwidth]{cusm_credito.pdf}
-\end{center}
+\centering
+\vspace{0.2cm}
+\includegraphics[width=0.6\textwidth]{raices_var_credito.png}
+\captionof{figure}{Raíces inversas del polinomio característico}
 \end{column}
 \end{columns}
 
-\vspace{0.4cm}
+\vspace{0.01cm}
 \footnotesize
 \begin{itemize}
-  \setlength{\itemsep}{0.6em}
-  \item \textbf{Estabilidad paramétrica:} El test CUSUM fluctúa estrictamente dentro de las bandas de confianza al 5\%, descartando quiebres estructurales en el modelo.
-  \item \textbf{Robustez inferencial:} La desviación de normalidad (JB) y la autocorrelación estacional (LM 12) son características intrínsecas de las series financieras mensuales. La validez asintótica de los IRF se blindó mediante intervalos de confianza por remuestreo \textit{bootstrap}. Ausencia de efectos ARCH.
+  \item \textbf{Estabilidad paramétrica (CUSUM):} Las fluctuaciones se mantienen dentro de las bandas de confianza al 5\%, descartando quiebres estructurales.
+  \item \textbf{Condición de estacionariedad:} Todas las raíces del modelo SVAR se sitúan dentro del círculo unitario.
 \end{itemize}
 
 ## SVAR: Canal de Crédito (IRF)
 
 \vspace{-0.2cm}
-\begin{center}
-\textbf{Respuesta del Crédito Productivo y ROA ante choque en Remesas} \\
-\vspace{0.2cm}
+\begin{figure}
+\centering
 \includegraphics[width=0.3\textwidth]{03_graficos_irf_remesas_credito.pdf}
-\end{center}
+\caption{Respuesta del Crédito Productivo y ROA ante choque en Remesas}
+\end{figure}
 
 \small
 - **Interpretación:** En el muy corto plazo, el choque de remesas no genera una expansión crediticia inmediata ni altera la rentabilidad. Las bandas de confianza absorben el valor cero rápidamente, mostrando rigidez temporal en la cartera.
@@ -196,11 +213,11 @@ ARCH(12) & 0.185 & 0.403 & 0.473 \\
 ## SVAR: Canal de Liquidez (IRF)
 
 \vspace{-0.2cm}
-\begin{center}
-\textbf{Respuesta de la Liquidez Pasiva y ROA ante choque en Remesas} \\
-\vspace{0.2cm}
+\begin{figure}
+\centering
 \includegraphics[width=0.3\textwidth]{03_graficos_irf_remesas.pdf}
-\end{center}
+\caption{Respuesta de la Liquidez Pasiva y ROA ante choque en Remesas}
+\end{figure}
 
 \small
 - **Interpretación:** Validando la hipótesis de esterilización, la banca capta la inyección de divisas y la acumula de forma pasiva en sus reservas de liquidez institucionales sin que esto mejore sus márgenes operativos de corto plazo.
@@ -208,11 +225,11 @@ ARCH(12) & 0.185 & 0.403 & 0.473 \\
 ## SVAR: Canal de Títulos Valores (IRF)
 
 \vspace{-0.2cm}
-\begin{center}
-\textbf{Respuesta de Inversión en Títulos y ROA ante choque en Remesas} \\
-\vspace{0.2cm}
+\begin{figure}
+\centering
 \includegraphics[width=0.3\textwidth]{03_graficos_irf_remesas_titulos.pdf}
-\end{center}
+\caption{Respuesta de Inversión en Títulos y ROA ante choque en Remesas}
+\end{figure}
 
 \small
 - **Interpretación:** Ante el exceso exógeno de fondeo y la postura de aversión al riesgo comercial inmediato, las instituciones financieras desvían una porción de la liquidez hacia la adquisición de instrumentos de deuda de bajo riesgo.
@@ -307,11 +324,11 @@ $\Delta \log(\text{crédito})$ & 0.0035 (0.093) & 0.0588 (0.022$^{*}$) \\
 ## VECM: Estabilidad Dinámica del Sistema
 
 \vspace{-0.2cm}
-\begin{center}
-\textbf{Raíces inversas del polinomio característico} \\
-\vspace{0.2cm}
+\begin{figure}
+\centering
 \includegraphics[width=0.3\textwidth]{05_raices_vecm.png}
-\end{center}
+\caption{Raíces inversas del polinomio característico}
+\end{figure}
 
 \vspace{0.2cm}
 \small
@@ -349,11 +366,11 @@ Normalidad (Jarque-Bera) & 115.72 & 8 & $<0.001$ \\
 ## VECM: El Canal Indirecto (Choque en Remesas)
 
 \vspace{-0.2cm}
-\begin{center}
-\textbf{Respuesta del Crédito, IMAE y Tasa Pasiva} \\
-\vspace{0.2cm}
+\begin{figure}
+\centering
 \includegraphics[width=0.3\textwidth]{06_irf_orto_remesas.pdf}
-\end{center}
+\caption{Respuesta del Crédito, IMAE y Tasa Pasiva ante choque en Remesas}
+\end{figure}
 
 \small
 - **El rezago del crédito:** La respuesta de la cartera es lenta, volviéndose estadísticamente significativa hasta el cuarto mes (acumula +1.77% a 36 meses).
@@ -362,11 +379,11 @@ Normalidad (Jarque-Bera) & 115.72 & 8 & $<0.001$ \\
 ## VECM: Sensibilidad al Ciclo Económico (Choque en IMAE)
 
 \vspace{-0.2cm}
-\begin{center}
-\textbf{Respuesta del Crédito ante un Choque en el IMAE} \\
-\vspace{0.2cm}
+\begin{figure}
+\centering
 \includegraphics[width=0.5\textwidth]{07_irf_orto_imae_credito.pdf}
-\end{center}
+\caption{Respuesta del Crédito ante un Choque en el IMAE}
+\end{figure}
 
 \small
 - **Reacción Inmediata:** A diferencia del choque de remesas, la colocación de préstamos reacciona de forma robusta y significativa desde el mes cero.
@@ -375,11 +392,11 @@ Normalidad (Jarque-Bera) & 115.72 & 8 & $<0.001$ \\
 ## VECM: Limitaciones de Fondeo (Choque en Tasa Pasiva)
 
 \vspace{-0.2cm}
-\begin{center}
-\textbf{Respuesta del Crédito ante un Choque en la Tasa Pasiva} \\
-\vspace{0.2cm}
+\begin{figure}
+\centering
 \includegraphics[width=0.5\textwidth]{10_irf_orto_tasa_credito.pdf}
-\end{center}
+\caption{Respuesta del Crédito ante un Choque en la Tasa Pasiva}
+\end{figure}
 
 \small
 - **Efecto Contractivo:** Un incremento en el costo interno del dinero reduce sistemáticamente la colocación de cartera, con significancia a partir del tercer mes.
@@ -387,9 +404,11 @@ Normalidad (Jarque-Bera) & 115.72 & 8 & $<0.001$ \\
 
 ## VECM: Descomposición de Varianza (FEVD)
 
-\begin{center}
+\begin{figure}
+\centering
 \includegraphics[width=0.6\textwidth]{05_grafico_fevd_credito_formal.pdf}
-\end{center}
+\caption{Descomposición de Varianza del Error de Predicción para el Crédito}
+\end{figure}
 
 - **FEVD a 36 meses:** El crédito es dictaminado prioritariamente por la Tasa Pasiva (57.41%) y el IMAE (16.01%).
 - **Impacto Externo:** Las Remesas solo logran explicar el 11.17% de la varianza agregada a largo plazo.
@@ -426,3 +445,70 @@ La confirmación trasciende la simple falta de significancia transitoria. Se fun
   
   \item \textbf{4. Subordinación al riesgo (VECM):} Expansión de cartera tardía, condicionada a que el ciclo real (IMAE) reaccione primero.
 \end{itemize}
+
+<!-- aqui el final -->
+
+```{r}
+#| echo: false
+#| label: ultima diapositiva
+#| include: false
+
+if(FALSE){
+  "
+  
+  se hace esto para mostrar la bonita, yo traajo en linux por lo que
+  magick no me instala debo de instalar:
+  
+  libmagick++-dev
+  
+  aqui los comando de consola
+  
+sudo apt update
+sudo apt install libmagick++-dev
+  
+  "
+}
+
+# cargar librerias ----
+options(repos = c(CRAN = "https://cloud.r-project.org"))
+if (!require("pacman")) install.packages("pacman")
+
+pacman::p_load(magick)
+
+ancho <- 1280
+alto  <- 960
+
+fondo <- image_blank(ancho, alto, color = "black")
+
+lorita <- image_read("bonita.png")
+lorita <- image_scale(lorita, "x400")
+
+info_lorita <- image_info(lorita)
+x_centro <- (ancho - info_lorita$width) %/% 2
+y_pos    <- 100
+
+slide <- image_composite(fondo, lorita, offset = paste0("+", x_centro, "+", y_pos))
+
+slide <- image_annotate(slide,
+                        "Un Chocoyo no Vuela con Alas Cortadas",
+                        gravity = "center", location = "+0-280",
+                        size = 38, color = "white", font = "sans", weight = 700)
+
+slide <- image_annotate(slide,
+                        "¡Muchas gracias por su atención!",
+                        gravity = "center", location = "+0-180",
+                        size = 55, color = "white", font = "sans", weight = 700)
+
+slide <- image_annotate(slide,
+                        "Estamos abiertos a sus preguntas y comentarios.",
+                        gravity = "center", location = "+0-60",
+                        size = 30, color = "white")
+
+slide <- image_annotate(slide,
+                        "Análisis del Efecto Spillover en el Sistema Financiero Nicaragüense",
+                        gravity = "center", location = "+0+40",
+                        size = 22, color = "white", style = "italic")
+
+image_write(slide, path = "slide_final.png", format = "png")
+```
+
