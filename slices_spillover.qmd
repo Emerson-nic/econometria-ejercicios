@@ -447,6 +447,30 @@ La confirmación trasciende la simple falta de significancia transitoria. Se fun
   \item \textbf{4. Subordinación al riesgo (VECM):} Expansión de cartera tardía, condicionada a que el ciclo real (IMAE) reaccione primero.
 \end{itemize}
 
+## Replicabilidad 
+
+\begin{block}{Repositorio de Código del Proyecto}
+Todo el código fuente en R, la estimación del SVAR/VECM, el procesamiento de datos y los archivos de Quarto se encuentran de acceso público.
+\end{block}
+
+\vspace{0.4cm}
+
+* **Enlace al repositorio:** [github.com/Emerson-nic/econometria-spillover](https://github.com/Emerson-nic/econometria-spillover)
+
+\vspace{0.3cm}
+
+**Comando de consola para clonar los scripts:**
+
+\begin{center}
+\begin{minipage}{0.85\textwidth}
+\begin{exampleblock}{}
+\small
+\texttt{git clone https://github.com/Emerson-nic/\\
+econometria-spillover.git}
+\end{exampleblock}
+\end{minipage}
+\end{center}
+
 <!-- aqui el final -->
 
 ```{r}
@@ -489,7 +513,7 @@ slide <- image_annotate(slide, "Análisis del Efecto Spillover en el Sistema Fin
                         gravity = "center", location = "+0+280",
                         size = 24, color = "black", style = "italic")
 
-image_write(slide, path = "slide_final.png", format = "png")
+image_write(slide, path = "slide_final.pdf", format = "pdf")
 ```
 
 \setbeamercolor{background canvas}{bg=white}
