@@ -445,24 +445,30 @@ La confirmación trasciende la simple falta de significancia transitoria. Se fun
 
 ## Replicabilidad
 
-\begin{block}{Repositorio de Código del Proyecto}
-Todo el código fuente en R, la estimación del SVAR/VECM, el procesamiento de datos y los archivos de Quarto se encuentran de acceso público.
+\begin{block}{Repositorios de Código del Proyecto}
+Todo el código fuente en R, la estimación del SVAR/VECM, el procesamiento de datos y los archivos de Quarto se encuentran en acceso público y espejo de respaldo.
 \end{block}
 
-\vspace{0.4cm}
+\vspace{0.01cm}
 
-- **Enlace al repositorio:** [github.com/Emerson-nic/Spillover-Nicaragua](https://github.com/Emerson-nic/Spillover-Nicaragua)
+\begin{itemize}
+    \item \textbf{Repositorio Principal (GitHub):} \\
+    \href{https://github.com/Emerson-nic/Spillover-Nicaragua}{github.com/Emerson-nic/Spillover-Nicaragua}
+    \vspace{0.001cm}
+    \item \textbf{Repositorio Espejo (Codeberg):} \\
+    \href{https://codeberg.org/Emerson-nic/Spilover-Nicaragua}{codeberg.org/Emerson-nic/Spilover-Nicaragua}
+\end{itemize}
 
-\vspace{0.3cm}
+\vspace{0.001cm}
 
-**Comando de consola para clonar los scripts:**
+\textbf{Comandos de consola para clonar los scripts:}
 
 \begin{center}
-\begin{minipage}{0.85\textwidth}
-\begin{exampleblock}{}
+\begin{minipage}{0.7\textwidth}
+\begin{exampleblock}{Clonar desde GitHub}
 \small
 \texttt{git clone https://github.com/Emerson-nic/\\
-econometria-spillover.git}
+Spillover-Nicaragua.git}
 \end{exampleblock}
 \end{minipage}
 \end{center}
