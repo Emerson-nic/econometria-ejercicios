@@ -2,10 +2,33 @@
 
 if(FALSE){
   "
-  Este archivo se llama svar_ratio_titulos
+  Este archivo es el svar_liquidez
   
-  Este archivo es el mismo que svar_liquidez pero con otro enfoque 
-  en las variables, se usa ratio de titulos
+  Todas las series son estacionarias (I(0)). Se estima un VAR en niveles,
+  
+  modelo de 5 a 4 variables porque habia overfitting, usar entre
+  d_liquidez y d_ratio_titulos los dos dicen lo mismo de un punto de 
+  vista diferente.
+  serie con autocorrelacion se elimino a corto plazo (6 meses)
+  no hay normalidad en los residuos pero el no sesga los irfs
+  serie homocedastica en los residuos
+  a diferencia del anterior modelo con autocorrelacion el test
+  granger es no significativo
+  raices dentro del circulo
+  con este modelo no existe el efecto spillover para 
+  la economia, el mecanismo de transmision no es directo de remesa a roa
+  como en el anterior modelo con autocorrelacion significativa
+  
+  nota: sobre la autocorrelacion del modelo se uso X-13ARIMA para
+  desestacionalizar, existe una ciclicidad 
+  estructural de mediano/largo plazo en el sistema financiero nicaragüense 
+  (quizas ciclos agricolas o de politica monetaria) que el var no captura
+  
+  pero en este modelo capturo y se realiza 3 rezagos para estimar el var
+  
+  mas notas: si se trabaja en tasa de varacion interanual las series no
+  seran estacionaras habria aplicar diff sobre diff entonces la version
+  actual del svar es la mejor por mucho
   
   nota: las girf generales las persan estan malas son navi eso no es una prueba 
   de robutez me paso hacer girf solo para vecm los demas son no significativo 
@@ -27,35 +50,35 @@ pacman::p_load(tidyverse,
                tseries,
                readr, 
                usethis #para .Renviron igual que .env de python
-)
+               )
 
 # importar datos si no existen en el entorno ----
 if (!exists("df_bananox")) {
-  if (file.exists("dataset_spillover_transformado.csv")) {
-    df_bananox <- readr::read_csv("dataset_spillover_transformado.csv") %>%
+  if (file.exists("Csv de dataset y resultados/dataset_spillover_transformado.csv")) {
+    df_bananox <- readr::read_csv("Csv de dataset y resultados/dataset_spillover_transformado.csv") %>%
       dplyr::mutate(fecha = as.Date(fecha))
   } else {
-    source("johansen_o_diff.R")  # este script debe crear df_bananox en el entorno global
+    source("Scripts/johansen_o_diff.R")  # este script debe crear df_bananox en el entorno global
   }
 }
 
 #nombres para los graficos----
-nombres_formales <- c(
-  dlog_remesas    = "Crecimiento de Remesas (dlog)",
-  dlog_imae       = "Crecimiento IMAE (dlog)",
-  d_liquidez      = "Var. Índice de Liquidez",
-  d_ratio_titulos = "Var. Inversión en Títulos",
-  d_tasa_pasiva   = "Var. Tasa de Interés Pasiva",
-  roa             = "Rentabilidad Bancaria (ROA)"
-)
+  nombres_formales <- c(
+    dlog_remesas    = "Crecimiento de Remesas (dlog)",
+    dlog_imae       = "Crecimiento IMAE (dlog)",
+    d_liquidez      = "Var. Índice de Liquidez",
+    d_ratio_titulos = "Var. Inversión en Títulos",
+    d_tasa_pasiva   = "Var. Tasa de Interés Pasiva",
+    roa             = "Rentabilidad Bancaria (ROA)"
+  )
 
 #rezago optimo para el var ----
 
 #este orden es el orden Cholesky
 endog_var <- df_bananox[, c("dlog_remesas", 
                             "d_tasa_pasiva", 
-                            #"d_liquidez", 
-                            "d_ratio_titulos", 
+                            "d_liquidez", 
+                            #"d_ratio_titulos", 
                             "roa")]
 
 exog_var <- df_bananox[, c("d2018", "dboom_remesas_covid", "dlog_imae")] 
@@ -69,14 +92,16 @@ seleccion_rezagos <- vars::VARselect(y = endog_var,
 
 print(seleccion_rezagos$selection)
 
-
 #esto guardo el bucle siguiente
 tabla_rezagos <- data.frame()
 
 #bucle para estimar de 1 a 12 rezagos y extraer el Log-Likelihood de cada uno ----
 for (i in 1:12) {
   #estimar el modelo temporalmente
-  modelo_tmp <- VAR(endog_var, p = i, type = "const", exogen = exog_var)
+  modelo_tmp <- VAR(endog_var, 
+                    p = i, type = "const", 
+                    season = 12, 
+                    exogen = exog_var)
   
   #extraer el Log-Likelihood del sistema de ecuaciones
   ll <- as.numeric(stats::logLik(modelo_tmp))
@@ -107,7 +132,7 @@ print(paste("min BIC/Schwarz",
 # modelo var ----
 
 var_mod <- VAR(endog_var,
-               p = 2, 
+               p = 1, 
                type = "const", 
                exogen = exog_var)
 
@@ -127,7 +152,7 @@ plot(raices_comp, unit_circle = TRUE, main = "Raíces inversas del VAR(3)")
 
 #mejor los graficos de raices
 
-png("raices_var_titulos.png", width = 2000, height = 2000, res = 300, bg = "transparent") #exportar
+png("Graficos/raices_var.png", width = 2000, height = 2000, res = 300, bg = "transparent") #exportar
 
 plot(raices_comp, type = "p", pch = 20, col = "red", 
      xlim = c(-1.1, 1.1), ylim = c(-1.1, 1.1),
@@ -170,7 +195,7 @@ estabil_mod <- stability(var_mod)
 
 # grafico del cusm
 
-pdf("cusm_titulos.pdf", width = 9, height = 7)
+pdf("Graficos/cusm.pdf", width = 9, height = 7)
 
 par(mfrow = c(2, 2)) #2x2 los graficos
 
@@ -200,8 +225,8 @@ set.seed(54973997) #si sos trans llama a este numero
 irf_chol <- irf(var_mod, 
                 impulse = "dlog_remesas", 
                 #response = c("roa", "d_liquidez", "d_ratio_titulos", "d_tasa_pasiva"),
-                response = c("roa", "d_tasa_pasiva", "d_ratio_titulos"),
-                #response = c("roa", "d_liquidez", "d_tasa_pasiva"),
+                #response = c("roa", "d_tasa_pasiva", "d_ratio_titulos"),
+                response = c("roa", "d_liquidez", "d_tasa_pasiva"),
                 #response = c("roa", "d_tasa_pasiva"),
                 n.ahead = 12, 
                 ortho = TRUE, 
@@ -232,7 +257,7 @@ print(head(irf_data, 20))
 print(irf_data, n = Inf)
 
 # Guardar CSV
-readr::write_csv(irf_data, "irf_spillover_remesas_titulos.csv")
+readr::write_csv(irf_data, "Csv de dataset y resultados/irf_spillover_remesas.csv")
 
 #graficos para el dog ortoganales
 
@@ -277,19 +302,19 @@ grafico_irf <- ggplot2::ggplot(irf_grafico_df, aes(x = horizon)) +
 
 print(grafico_irf)
 
-ggplot2::ggsave("03_graficos_irf_remesas_titulos.pdf", plot = grafico_irf, width = 7, height = 8)
+ggplot2::ggsave("Graficos/03_graficos_irf_remesas.pdf", plot = grafico_irf, width = 7, height = 8)
 
 #irf generalizadas (Pesaran‑Shin)
 
 irf_general <- irf(var_mod, 
-                   impulse = "dlog_remesas", 
-                   #response = c("roa", "d_liquidez", "d_ratio_titulos", "d_tasa_pasiva"),
-                   response = c("roa", "d_tasa_pasiva", "d_ratio_titulos"),
-                   #response = c("roa", "d_liquidez", "d_tasa_pasiva"),
-                   n.ahead = 12, 
-                   ortho = FALSE, 
-                   boot = TRUE, 
-                   runs = 1000)
+               impulse = "dlog_remesas", 
+               #response = c("roa", "d_liquidez", "d_ratio_titulos", "d_tasa_pasiva"),
+               #response = c("roa", "d_tasa_pasiva", "d_ratio_titulos"),
+               response = c("roa", "d_liquidez", "d_tasa_pasiva"),
+               n.ahead = 12, 
+               ortho = FALSE, 
+               boot = TRUE, 
+               runs = 1000)
 
 plot(irf_general)
 
@@ -322,7 +347,7 @@ print(head(irf_data_general, 20))
 print(irf_data_general, n = Inf)
 
 # Guardar CSV
-readr::write_csv(irf_data_general, "irf_spillover_remesas_generales_titulos.csv")
+readr::write_csv(irf_data_general, "Csv de dataset y resultados/irf_spillover_remesas_generales.csv")
 
 #graficos generales Pesaran‑Shin
 
@@ -358,7 +383,8 @@ grafico_irf_general <- ggplot2::ggplot(irf_grafico_general_df, aes(x = Horizonte
 
 print(grafico_irf_general)
 
-ggplot2::ggsave("04_graficos_irf_generales_pesaran_titulos.pdf", plot = grafico_irf_general, width = 7, height = 8)
+ggplot2::ggsave("Graficos/04_graficos_irf_generales_pesaran.pdf", plot = grafico_irf_general, width = 7, height = 8)
+
 
 #fevd ----
 
@@ -390,7 +416,7 @@ plot(horizonte, fevd_roa_por_remesas,
 tabla_fevd_roa <- data.frame(
   Mes = horizonte,
   Explicado_por_Remesas = matriz_roa[, "dlog_remesas"] * 100,
-  Explicado_por_Titulos = matriz_roa[, "d_ratio_titulos"] * 100,
+  Explicado_por_Liquidez = matriz_roa[, "d_liquidez"] * 100,
   Explicado_por_Tasa = matriz_roa[, "d_tasa_pasiva"] * 100,
   Explicado_por_Propio_ROA = matriz_roa[, "roa"] * 100
 )
@@ -398,7 +424,7 @@ tabla_fevd_roa <- data.frame(
 print("Descomposición de Varianza del ROA (%):")
 print(round(tabla_fevd_roa, 2))
 
-readr::write_csv(tabla_fevd_roa, "fevd_roa_desglosado_titulos.csv")
+readr::write_csv(tabla_fevd_roa, "Csv de dataset y resultados/fevd_roa_desglosado.csv")
 
 #grafico roa fevd
 
@@ -411,9 +437,9 @@ tabla_fevd_long <- tabla_fevd_roa %>%
   dplyr::mutate(
     Fuente_Choque = dplyr::case_when(
       Fuente_Choque == "Explicado_por_Remesas"       ~ "Choque: Remesas",
-      Fuente_Choque == "Explicado_por_Liquidez"      ~ "Choque: Liquidez", 
+      Fuente_Choque == "Explicado_por_Liquidez"      ~ "Choque: Liquidez",
       Fuente_Choque == "Explicado_por_Tasa"          ~ "Choque: Tasa Pasiva",
-      Fuente_Choque == "Explicado_por_Titulos"       ~ "Choque: Inversion en Titulos",
+      Fuente_Choque == "Explicado_por_Ratio_Titulos" ~ "Choque: Inversion en Titulos",
       Fuente_Choque == "Explicado_por_Propio_ROA"    ~ "Choque Inercial: ROA",
       TRUE                                           ~ Fuente_Choque
     )
@@ -453,4 +479,4 @@ grafico_fevd_roa <- ggplot2::ggplot(tabla_fevd_long, aes(x = Mes, y = Porcentaje
 
 print(grafico_fevd_roa)
 
-ggplot2::ggsave("05_grafico_fevd_roa_formal_titulos.pdf", plot = grafico_fevd_roa, width = 7.5, height = 5)
+ggplot2::ggsave("Graficos/05_grafico_fevd_roa_formal.pdf", plot = grafico_fevd_roa, width = 7.5, height = 5)

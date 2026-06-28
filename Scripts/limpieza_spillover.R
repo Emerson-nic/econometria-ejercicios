@@ -44,10 +44,10 @@ pacman::p_load(tidyverse,
 # importar datos si no existen en el entorno ----
 if (!exists("df_credito")) {
   if (file.exists("df_credito.csv")) {
-    df_credito <- readr::read_csv("df_credito.csv") %>%
+    df_credito <- readr::read_csv("Csv de dataset y resultados/df_credito.csv") %>%
       dplyr::mutate(fecha = as.Date(fecha))
   } else {
-    source("datos_json.R")
+    source("Scripts/datos_json.R")
   }
 }
 
@@ -78,10 +78,10 @@ procesar_siboif <- function(file_path, sheet_name) {
 
 #aplicar la funcion anterior ----
 
-bg <- procesar_siboif("ib_balance_general_0.xlsx", "SISTEMA_BANCARIO")
-bg_18 <- procesar_siboif("ib_balance_general.xlsx", "SISTEMA_BANCARIO")
-er <- procesar_siboif("ib_estado_resultados_0.xlsx", "SISTEMA_BANCARIO")
-er_18 <- procesar_siboif("ib_estado_resultados.xlsx", "SISTEMA_BANCARIO")
+bg <- procesar_siboif("Base de datos del BCN, SECMCA y SIBOIF/ib_balance_general_0.xlsx", "SISTEMA_BANCARIO")
+bg_18 <- procesar_siboif("Base de datos del BCN, SECMCA y SIBOIF/ib_balance_general.xlsx", "SISTEMA_BANCARIO")
+er <- procesar_siboif("Base de datos del BCN, SECMCA y SIBOIF/ib_estado_resultados_0.xlsx", "SISTEMA_BANCARIO")
+er_18 <- procesar_siboif("Base de datos del BCN, SECMCA y SIBOIF/ib_estado_resultados.xlsx", "SISTEMA_BANCARIO")
 
 print("nombres en Balance General (bg):")
 print(names(bg))
@@ -138,12 +138,12 @@ siboif_completo_ts <- dplyr::bind_rows(siboif_18_ts, siboif_ts) %>%
 
 #limpieza de las remesas ----
 
-remesas_raw <- readxl::read_excel("remesas.xls", sheet = "1a.2.1.04", skip = 0) 
+remesas_raw <- readxl::read_excel("Base de datos del BCN, SECMCA y SIBOIF/remesas.xls", sheet = "1a.2.1.04", skip = 0) 
 print("nombres en remesas")
 print(names(remesas_raw))
 print(head(remesas_raw, 10))
 
-remesas_ts <- readxl::read_excel("remesas.xls", 
+remesas_ts <- readxl::read_excel("Base de datos del BCN, SECMCA y SIBOIF/remesas.xls", 
                                  sheet = "1a.2.1.04", 
                                  skip = 5, 
                                  col_names = FALSE) %>%
@@ -165,7 +165,7 @@ remesas_ts <- readxl::read_excel("remesas.xls",
 
 #liempieza en tasa de interes ----
 
-tasas_raw <- suppressMessages(readxl::read_excel("Tasas de interés en moneda extranjera.xls", 
+tasas_raw <- suppressMessages(readxl::read_excel("Base de datos del BCN, SECMCA y SIBOIF/Tasas de interés en moneda extranjera.xls", 
                                                  sheet = "Datos",  
                                                  skip = 0))
 print("nombres en tasas")
@@ -173,7 +173,7 @@ print(names(tasas_raw))
 print(head(tasas_raw, 10))
 
 
-tasas_raw <- suppressMessages(readxl::read_excel("Tasas de interés en moneda extranjera.xls", 
+tasas_raw <- suppressMessages(readxl::read_excel("Base de datos del BCN, SECMCA y SIBOIF/Tasas de interés en moneda extranjera.xls", 
                                                  sheet = "Datos",
                                                  skip = 7,
                                                  col_names = FALSE)) 
@@ -193,7 +193,7 @@ tasas_ts <- tasas_raw %>%
 
 #imae (Serie Desestacionalizada) ----
 
-imae_raw <- readxl::read_excel("Cuadros_de_salida_IMAE.xlsx", 
+imae_raw <- readxl::read_excel("Base de datos del BCN, SECMCA y SIBOIF/Cuadros_de_salida_IMAE.xlsx", 
                                sheet = "IMAE", 
                                skip = 30, 
                                col_names = FALSE) %>%
@@ -270,6 +270,6 @@ dataset_banano <- dataset_banano %>%
 
 dplyr::glimpse(dataset_banano)
 
-readr::write_csv(dataset_banano, "dataset_spillover_remesas_clean.csv")
+readr::write_csv(dataset_banano, "Csv de dataset y resultados/dataset_spillover_remesas_clean.csv")
 
 

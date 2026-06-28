@@ -26,7 +26,7 @@ pacman::p_load(tidyverse,
                )
 
 #leer json ----
-datos_crudos <- fromJSON("FyU_OSD_MN_y_ME.json")
+datos_crudos <- fromJSON("Base de datos del BCN, SECMCA y SIBOIF/FyU_OSD_MN_y_ME.json")
 
 
 
@@ -67,5 +67,5 @@ print(head(df_credito))
 
 #exportar para juntarlo a limpieza_spillover
 
-readr::write_csv(df_credito, "df_credito.csv")
+readr::write_csv(df_credito, "Csv de dataset y resultados/df_credito.csv")
 

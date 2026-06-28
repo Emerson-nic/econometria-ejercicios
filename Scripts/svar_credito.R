@@ -30,11 +30,11 @@ pacman::p_load(tidyverse,
 
 # importar datos si no existen en el entorno ----
 if (!exists("df_bananox")) {
-  if (file.exists("dataset_spillover_transformado.csv")) {
-    df_bananox <- readr::read_csv("dataset_spillover_transformado.csv") %>%
+  if (file.exists("Csv de dataset y resultados/dataset_spillover_transformado.csv")) {
+    df_bananox <- readr::read_csv("Csv de dataset y resultados/dataset_spillover_transformado.csv") %>%
       dplyr::mutate(fecha = as.Date(fecha))
   } else {
-    source("johansen_o_diff.R")  # este script debe crear df_bananox en el entorno global
+    source("Scripts/johansen_o_diff.R")  # este script debe crear df_bananox en el entorno global
   }
 }
 
@@ -128,7 +128,7 @@ plot(raices_comp, unit_circle = TRUE, main = "Raíces inversas del VAR(3)")
 
 #mejor los graficos de raices
 
-png("raices_var_credito.png", width = 2000, height = 2000, res = 300, bg = "transparent") #exportar
+png("Graficos/raices_var_credito.png", width = 2000, height = 2000, res = 300, bg = "transparent") #exportar
 
 plot(raices_comp, type = "p", pch = 20, col = "red", 
      xlim = c(-1.1, 1.1), ylim = c(-1.1, 1.1),
@@ -171,7 +171,7 @@ estabil_mod <- stability(var_mod)
 
 # grafico del cusm
 
-pdf("cusm_credito.pdf", width = 9, height = 7)
+pdf("Graficos/cusm_credito.pdf", width = 9, height = 7)
 
 par(mfrow = c(2, 2)) #2x2 los graficos
 
@@ -232,7 +232,7 @@ print(head(irf_data, 20))
 print(irf_data, n = Inf)
 
 # Guardar CSV
-readr::write_csv(irf_data, "irf_spillover_remesas_credito.csv")
+readr::write_csv(irf_data, "Csv de dataset y resultados/irf_spillover_remesas_credito.csv")
 
 #graficos para el dog ortoganales
 
@@ -279,7 +279,7 @@ grafico_irf <- ggplot2::ggplot(irf_grafico_df, aes(x = horizon)) +
 
 print(grafico_irf)
 
-ggplot2::ggsave("03_graficos_irf_remesas_credito.pdf", plot = grafico_irf, width = 7, height = 8)
+ggplot2::ggsave("Graficos/03_graficos_irf_remesas_credito.pdf", plot = grafico_irf, width = 7, height = 8)
 
 #irf cholesky impulto cridito respuesta roa
 
@@ -352,7 +352,7 @@ grafico_irf_credito_roa <- ggplot2::ggplot(irf_grafico_credito_roa_df, ggplot2::
 
 print(grafico_irf_credito_roa)
 
-ggplot2::ggsave("04_grafico_irf_credito_roa.pdf", plot = grafico_irf_credito_roa, width = 7, height = 4)
+ggplot2::ggsave("Graficos/04_grafico_irf_credito_roa.pdf", plot = grafico_irf_credito_roa, width = 7, height = 4)
 
 
 #irf generalizadas (Pesaran‑Shin)
@@ -388,7 +388,7 @@ print(head(irf_data_general, 20))
 print(irf_data_general, n = Inf)
 
 # Guardar CSV
-readr::write_csv(irf_data_general, "irf_spillover_remesas_generales_credito.csv")
+readr::write_csv(irf_data_general, "Csv de dataset y resultados/irf_spillover_remesas_generales_credito.csv")
 
 #graficos generales Pesaran‑Shin
 
@@ -429,7 +429,7 @@ grafico_irf_general <- ggplot2::ggplot(irf_grafico_general_df, ggplot2::aes(x = 
 
 print(grafico_irf_general)
 
-ggplot2::ggsave("04_graficos_irf_generales_pesaran_credito.pdf", plot = grafico_irf_general, width = 7, height = 8)
+ggplot2::ggsave("Graficos/04_graficos_irf_generales_pesaran_credito.pdf", plot = grafico_irf_general, width = 7, height = 8)
 
 #irf cholesky impulso cridito respuesta roa general
 
@@ -465,7 +465,7 @@ irf_data_credito_roa_general <- bind_rows(lapply(resp_names_credito_roa_general,
 #imprime todo
 print(irf_data_credito_roa_general, n = Inf)
 
-readr::write_csv(irf_data_credito_roa_general, "irf_general_credito_hacia_roa.csv")
+readr::write_csv(irf_data_credito_roa_general, "Csv de dataset y resultados/irf_general_credito_hacia_roa.csv")
 
 #grafico credito roa general
 
@@ -517,7 +517,7 @@ grafico_irf_credito_roa_formal <- ggplot2::ggplot(irf_grafico_credito_roa_df_gen
 
 print(grafico_irf_credito_roa_formal)
 
-ggplot2::ggsave("04_grafico_irf_credito_roa_formal.pdf", plot = grafico_irf_credito_roa_formal, width = 7, height = 4)
+ggplot2::ggsave("Graficos/04_grafico_irf_credito_roa_formal.pdf", plot = grafico_irf_credito_roa_formal, width = 7, height = 4)
 
 #fevd ----
 
@@ -557,7 +557,7 @@ tabla_fevd_roa <- data.frame(
 print("Descomposición de Varianza del ROA (%):")
 print(round(tabla_fevd_roa, 2))
 
-readr::write_csv(tabla_fevd_roa, "fevd_roa_desglosado_credito.csv")
+readr::write_csv(tabla_fevd_roa, "Csv de dataset y resultados/fevd_roa_desglosado_credito.csv")
 
 #grafico roa fevd
 
@@ -614,8 +614,4 @@ grafico_fevd_roa <- ggplot2::ggplot(tabla_fevd_long, aes(x = Mes, y = Porcentaje
 
 print(grafico_fevd_roa)
 
-ggplot2::ggsave("05_grafico_fevd_roa_formal_credito.pdf", plot = grafico_fevd_roa, width = 7.5, height = 5)
-
-
-
-
+ggplot2::ggsave("Graficos/05_grafico_fevd_roa_formal_credito.pdf", plot = grafico_fevd_roa, width = 7.5, height = 5)

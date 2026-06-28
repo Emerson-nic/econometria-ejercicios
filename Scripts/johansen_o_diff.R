@@ -65,11 +65,11 @@ pacman::p_load(tidyverse,
 
 # importar datos si no existen en el entorno ----
 if (!exists("dataset_banano")) {
-  if (file.exists("dataset_spillover_remesas_clean.csv")) {
-    dataset_banano <- readr::read_csv("dataset_spillover_remesas_clean.csv") %>%
+  if (file.exists("Csv de dataset y resultados/dataset_spillover_remesas_clean.csv")) {
+    dataset_banano <- readr::read_csv("Csv de dataset y resultados/dataset_spillover_remesas_clean.csv") %>%
       dplyr::mutate(fecha = as.Date(fecha))
   } else {
-    source("limpieza_spillover.R")
+    source("Scripts/limpieza_spillover.R")
   }
 }
 
@@ -151,7 +151,7 @@ dataset_banano_graficos %>%
   )
 
 #guardar plot
-ggplot2::ggsave("grafico_variables.pdf", width = 8, height = 6)
+ggplot2::ggsave("Graficos/grafico_variables.pdf", width = 8, height = 6)
 
 # test Johansen ----
 
@@ -365,7 +365,7 @@ df_bananox_graficos %>%
   )
 
 #guardar plot
-ggplot2::ggsave("grafico_variables_transformadas.pdf", width = 8, height = 6)
+ggplot2::ggsave("Graficos/grafico_variables_transformadas.pdf", width = 8, height = 6)
 
 
 #identificar choques estructurales ----
@@ -408,7 +408,7 @@ df_bananox <- df_bananox %>%
 
 # guardar dataset
 
-readr::write_csv(df_bananox, "dataset_spillover_transformado.csv")
+readr::write_csv(df_bananox, "Csv de dataset y resultados/dataset_spillover_transformado.csv")
 
 if(FALSE){
   "
@@ -445,4 +445,4 @@ dataset_vecm <- dataset_banano %>%
   # asi que hace eso para que no se llamew iguales pero ambas son la misma cosa
   tidyr::drop_na()
 
-readr::write_csv(dataset_vecm, "dataset_vecm.csv")
+readr::write_csv(dataset_vecm, "Csv de dataset y resultados/dataset_vecm.csv")

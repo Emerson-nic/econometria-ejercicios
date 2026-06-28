@@ -36,11 +36,11 @@ pacman::p_load(tidyverse,
 
 # importar datos si no existen en el entorno ----
 if (!exists("dataset_vecm")) {
-  if (file.exists("dataset_vecm.csv")) {
-    dataset_vecm <- readr::read_csv("dataset_vecm.csv") %>%
+  if (file.exists("Csv de dataset y resultados/dataset_vecm.csv")) {
+    dataset_vecm <- readr::read_csv("Csv de dataset y resultados/dataset_vecm.csv") %>%
       dplyr::mutate(fecha = as.Date(fecha))
   } else {
-    source("johansen_o_diff.R")
+    source("Scripts/johansen_o_diff.R")
   }
 }
 
@@ -225,7 +225,7 @@ matriz_companera <- rbind(
 valores_propios <- eigen(matriz_companera)$values
 raices_comp <- complex(real = Re(valores_propios), imaginary = Im(valores_propios))
 
-png("05_raices_vecm.png", width = 2000, height = 2000, res = 300, bg = "transparent")
+png("Graficos/05_raices_vecm.png", width = 2000, height = 2000, res = 300, bg = "transparent")
 plot(raices_comp, type = "p", pch = 20, col = "darkred", 
      xlim = c(-1.1, 1.1), ylim = c(-1.1, 1.1),
      xlab = "Parte Real", ylab = "Parte Imaginaria") 
@@ -311,7 +311,7 @@ cat('estos irf son de largo plazo')
 # imprimir todo
 print(irf_data_vecm, n = Inf)
 
-readr::write_csv(irf_data_vecm, "irf_vecm_largo_plazo.csv")
+readr::write_csv(irf_data_vecm, "Csv de dataset y resultados/irf_spillover_vecm_remesas_orto.csv")
 
 #irf de imae a prestamos
 
@@ -354,7 +354,7 @@ irf_data_vecm_imae <- bind_rows(lapply(resp_names_imae, function(resp) {
 # imprimir todo
 print(irf_data_vecm_imae, n = Inf)
 
-readr::write_csv(irf_data_vecm_imae, "irf_vecm_largo_plazo_imae.csv")
+readr::write_csv(irf_data_vecm_imae, "Csv de dataset y resultados/irf_spillover_vecm_imae_orto.csv")
 
 #irf generales imae Pesaran‑Shin ----
 
@@ -397,7 +397,7 @@ irf_data_vecm_general <- bind_rows(lapply(resp_names, function(resp) {
 # imprimir todo
 print(irf_data_vecm_general, n = Inf)
 
-readr::write_csv(irf_data_vecm_general, "irf_vecm_largo_plazo_general.csv")
+readr::write_csv(irf_data_vecm_general, "Csv de dataset y resultados/irf_spillover_vecm_remesas_gen.csv")
 
 # graficos pesaran-shin y ortogolanes cholesky de los itf anteriores ----
 
@@ -419,7 +419,7 @@ grafico_irf_remesas_orto <- ggplot2::ggplot(irf_data_vecm, aes(x = horizon)) +
     plot.title = element_text(face = "bold", size = 12),
     panel.spacing = unit(1, "lines")
   )
-ggplot2::ggsave("06_irf_orto_remesas.pdf", plot = grafico_irf_remesas_orto, width = 7, height = 8)
+ggplot2::ggsave("Graficos/06_irf_orto_remesas.pdf", plot = grafico_irf_remesas_orto, width = 7, height = 8)
 
 grafico_irf_imae_orto <- ggplot2::ggplot(irf_data_vecm_imae, aes(x = horizon)) +
   ggplot2::geom_hline(yintercept = 0, linetype = "dashed", color = "gray40", linewidth = 0.6) +
@@ -436,7 +436,7 @@ grafico_irf_imae_orto <- ggplot2::ggplot(irf_data_vecm_imae, aes(x = horizon)) +
     strip.text = element_text(face = "bold", size = 11),
     plot.title = element_text(face = "bold", size = 12)
   )
-ggplot2::ggsave("07_irf_orto_imae_credito.pdf", plot = grafico_irf_imae_orto, width = 7, height = 4)
+ggplot2::ggsave("Graficos/07_irf_orto_imae_credito.pdf", plot = grafico_irf_imae_orto, width = 7, height = 4)
 
 
 #pesaran-shin 
@@ -457,7 +457,7 @@ grafico_irf_remesas_gen <- ggplot2::ggplot(irf_data_vecm_general, aes(x = horizo
     plot.title = element_text(face = "bold", size = 12),
     panel.spacing = unit(1, "lines")
   )
-ggplot2::ggsave("08_irf_gen_remesas.pdf", plot = grafico_irf_remesas_gen, width = 7, height = 8)
+ggplot2::ggsave("Graficos/08_irf_gen_remesas.pdf", plot = grafico_irf_remesas_gen, width = 7, height = 8)
 
 # irf de tasa pasiva a credito ----
 
@@ -485,7 +485,7 @@ irf_data_vecm_tasa <- dplyr::bind_rows(lapply(resp_names_tasa, function(resp) {
   dplyr::mutate(respuesta_formal = "credito")
 
 print(irf_data_vecm_tasa, n = Inf)
-readr::write_csv(irf_data_vecm_tasa, "irf_vecm_largo_plazo_tasa.csv")
+readr::write_csv(irf_data_vecm_tasa, "Csv de dataset y resultados/irf_spillover_vecm_tasa_orto.csv")
 
 grafico_irf_tasa_orto <- ggplot2::ggplot(irf_data_vecm_tasa, aes(x = horizon)) +
   ggplot2::geom_hline(yintercept = 0, linetype = "dashed", color = "gray40", linewidth = 0.6) +
@@ -496,7 +496,7 @@ grafico_irf_tasa_orto <- ggplot2::ggplot(irf_data_vecm_tasa, aes(x = horizon)) +
   ggplot2::labs(x = "Horizonte Temporal (Meses)", y = "Respuesta del Crédito") +
   ggplot2::theme_minimal(base_size = 10) +
   ggplot2::theme(strip.text = element_text(face = "bold", size = 11))
-ggplot2::ggsave("10_irf_orto_tasa_credito.pdf", plot = grafico_irf_tasa_orto, width = 7, height = 4)
+ggplot2::ggsave("Graficos/10_irf_orto_tasa_credito.pdf", plot = grafico_irf_tasa_orto, width = 7, height = 4)
 
 
 #pesaran-shin
@@ -523,7 +523,7 @@ irf_data_vecm_tasa_gen <- dplyr::bind_rows(lapply(resp_names_tasa_gen, function(
   dplyr::mutate(respuesta_formal = "credito")
 
 print(irf_data_vecm_tasa_gen, n = Inf)
-readr::write_csv(irf_data_vecm_tasa_gen, "irf_vecm_largo_plazo_tasa_general.csv")
+readr::write_csv(irf_data_vecm_tasa_gen, "Csv de dataset y resultados/irf_spillover_vecm_tasa_gen.csv")
 
 grafico_irf_tasa_gen <- ggplot2::ggplot(irf_data_vecm_tasa_gen, aes(x = horizon)) +
   ggplot2::geom_hline(yintercept = 0, linetype = "dashed", color = "gray40", linewidth = 0.6) +
@@ -534,7 +534,7 @@ grafico_irf_tasa_gen <- ggplot2::ggplot(irf_data_vecm_tasa_gen, aes(x = horizon)
   ggplot2::labs(x = "Horizonte Temporal (Meses)", y = "Respuesta del Crédito") +
   ggplot2::theme_minimal(base_size = 10) +
   ggplot2::theme(strip.text = element_text(face = "bold", size = 11))
-ggplot2::ggsave("11_irf_gen_tasa_credito.pdf", plot = grafico_irf_tasa_gen, width = 7, height = 4)
+ggplot2::ggsave("Graficos/11_irf_gen_tasa_credito.pdf", plot = grafico_irf_tasa_gen, width = 7, height = 4)
 
 
 #irf de imae a prestamos general
@@ -578,7 +578,7 @@ irf_data_vecm_imae_general <- bind_rows(lapply(resp_names_imae_general, function
 # imprimir todo
 print(irf_data_vecm_imae_general, n = Inf)
 
-readr::write_csv(irf_data_vecm_imae_general, "irf_vecm_largo_plazo_imae_general.csv")
+readr::write_csv(irf_data_vecm_imae_general, "Csv de dataset y resultados/irf_spillover_vecm_imae_gen.csv")
 
 grafico_irf_imae_gen <- ggplot2::ggplot(irf_data_vecm_imae_general, aes(x = horizon)) +
   ggplot2::geom_hline(yintercept = 0, linetype = "dashed", color = "gray40", linewidth = 0.6) +
@@ -595,7 +595,7 @@ grafico_irf_imae_gen <- ggplot2::ggplot(irf_data_vecm_imae_general, aes(x = hori
     strip.text = element_text(face = "bold", size = 11),
     plot.title = element_text(face = "bold", size = 12)
   )
-ggplot2::ggsave("09_irf_gen_imae_credito.pdf", plot = grafico_irf_imae_gen, width = 7, height = 4)
+ggplot2::ggsave("Graficos/09_irf_gen_imae_credito.pdf", plot = grafico_irf_imae_gen, width = 7, height = 4)
 
 
 
@@ -622,7 +622,7 @@ obtener_fevd_limpia <- function(fevd_objeto) {
 fevd_data_vecm <- obtener_fevd_limpia(fevd_vecm)
 
 print(as.data.frame(fevd_data_vecm))
-readr::write_csv(fevd_data_vecm, "fevd_vecm_largo_plazo.csv")
+readr::write_csv(fevd_data_vecm, "Csv de dataset y resultados/fevd_vecm_largo_plazo.csv")
 
 #grafico
 
@@ -675,7 +675,7 @@ grafico_fevd_credito <- ggplot2::ggplot(tabla_fevd_credito_long, ggplot2::aes(x 
 
 print(grafico_fevd_credito)
 
-ggplot2::ggsave("05_grafico_fevd_credito_formal.pdf", plot = grafico_fevd_credito, width = 7.5, height = 5)
+ggplot2::ggsave("Graficos/12_grafico_fevd_credito_formal.pdf", plot = grafico_fevd_credito, width = 7.5, height = 5)
 
 
 # girf manuales ----
